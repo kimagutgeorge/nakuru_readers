@@ -8,6 +8,8 @@ export default [
         { path: '/admin/events', component: () => import('@/views/admin/AdminEvents.vue') },
         { path: '/admin/books', component: () => import('@/views/admin/AdminBooks.vue') },
         { path: '/admin/add-book', component: () => import('@/views/admin/AddBook.vue') },
+        { path: '/admin/manage-books', component: () => import('@/views/admin/ManageBook.vue') },
+        { path: '/admin/manage-collections', component: () => import('@/views/admin/ManageCollection.vue') },
       ],
     },
   ];

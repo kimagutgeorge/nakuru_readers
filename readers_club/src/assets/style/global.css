@@ -25,12 +25,21 @@ a{
 .col-90{
     width: 90%;
 }
+.col-10{
+    width:10%;
+}
 .col-50{
     width: 50%;
 }
+.col-80{
+    width:80%;
+}
+.col-70{
+    width: 70%;
+}
 .col-flex{
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
 }
 .is-active{
     color: #ffffff;
@@ -47,6 +56,48 @@ a{
 .search-input{
     border:0px;
 }
+.title-label{
+    font-size: 22px;
+    color:#161a2c;
+}
+.title-label-small{
+    color:#8d9498;
+    font-size: 16px;
+    font-weight: lighter;
+}
+.form-input{
+    border:1px solid rgb(220,220,220);
+    border-radius: 5px;
+    width: 90%;
+    padding:10px;
+    margin-top: 10px;
+}
+.form-group{
+    width:100%;
+    margin-top: 15px;
+}
+.form-group select.form-input{
+    width: 96%;
+}
+.text-light-gray{
+    color:rgb(230,230,230);
+}
+.text-dark-gray{
+    color:#333;
+}
+.btn{
+    padding:10px;
+    border:0px;
+    cursor: pointer;
+}
+.btn-primary{
+    background-color: #1a2035;
+    color:#ffffff;
+}
+.btn-success{
+    background-color: #5ad85e;
+    color:#ffffff;
+}
 /* admin panel */
 .admin-layout{
     display: flex;
@@ -58,9 +109,16 @@ a{
 .admin-layout .admin-panel{
     width: 96%;
     margin-left: 2%;
+    margin-top: 15px;
 }
-.admin-layout .nav-bar{
-    margin-top: 90px;
+.admin-layout .admin-panel .admin-panel-body{
+    margin-top: 15px;
+    padding:15px;
+    background-color: #ffffff;
+}
+.admin-layout .nav-bar .system-logo img{
+    width: 50px;
+    margin:20px 7%;
 }
 .admin-layout .nav-bar .col-90{
     margin-left:2px;
@@ -79,6 +137,10 @@ a{
 }
 .admin-layout .nav-bar .col-90.col-flex .dark-nav-bar{
     font-size: 12px;
+    color:#8d9498;
+}
+.admin-layout .nav-bar .col-90.col-flex .dark-nav-bar.is-active{
+    color:#ffffff;
 }
 .admin-layout .nav-bar .col-90.col-flex .is-active{
     border-left: 3px solid #6760cd;
@@ -123,7 +185,7 @@ a{
     cursor: pointer;
 }
 .admin-layout .top-bar .inner-col .col-50 .top-bar-icon .fa-solid{
-    color:#333;
+    color:#8d9498;
     font-size: 20px;
     margin-right: 20px;
     margin-top: 15px;
@@ -136,4 +198,17 @@ a{
 .admin-layout .top-bar .inner-col .col-50 .top-bar-icon .text-div{
     margin-top: 20px;
     margin-left:10px;
+}
+.admin-layout .admin-panel .admin-panel-body .title-label{
+    font-size: 18px;
+}
+.admin-layout .admin-panel .admin-panel-body .book-list{
+    padding:8px;
+    width: fit-content;
+    background-color: rgb(230,230,230);
+    margin-right: 4px;
+}
+.admin-layout .admin-panel .admin-panel-body .book-list .fa-solid{
+    color:red;
+    cursor: pointer;
 }

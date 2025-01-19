@@ -1,5 +1,8 @@
 <template>
     <div class="nav-bar col-100">
+        <div class="system-logo">
+            <img src="../../assets/icon/icon.png" alt="">
+        </div>
         <div class="col-90 col-flex">
             <router-link to="/admin/dashboard" class="col-100" active-class="is-active">
                 <i class="fa-solid fa-house"></i> <span>Dashboard</span>
@@ -16,8 +19,13 @@
             </router-link>
         </div>
         <div class="col-90 col-flex" v-if="visiblebooks">
-            <router-link to="/admin/manage-book" class="col-90 col-flex dark-nav-bar" active-class="is-active">
-                <i class="fa-solid fa-gear"></i> <span>Manage</span>
+            <router-link to="/admin/manage-books" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-tags"></i> <span>Categories</span>
+            </router-link>
+        </div>
+        <div class="col-90 col-flex" v-if="visiblebooks">
+            <router-link to="/admin/manage-collections" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-list"></i> <span>Collections</span>
             </router-link>
         </div>
         <div class="col-90 col-flex" v-if="visiblebooks">
@@ -97,7 +105,6 @@ export default {
             } else {
                 this.visibleevents = false
             }
-            
         }
     }
 }
