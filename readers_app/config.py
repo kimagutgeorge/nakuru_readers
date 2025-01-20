@@ -47,12 +47,3 @@ db = SQLAlchemy(app)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 # Allow CORS for requests from vue
 CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}}, supports_credentials=True)
-
-# integer checker
-def is_integer(valuetoCheck):
-    try:
-        int(valuetoCheck)
-    except ValueError:
-        return False
-    else:
-        return True

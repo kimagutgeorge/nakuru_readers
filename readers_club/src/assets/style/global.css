@@ -6,6 +6,9 @@
 a{
     text-decoration: none;
 }
+li{
+    list-style: none;
+}
 /* universal classes */
 .col-15{
     width:15%;
@@ -91,12 +94,39 @@ a{
     cursor: pointer;
 }
 .btn-primary{
-    background-color: #1a2035;
+    background-color: rgb(220,220,220);
     color:#ffffff;
 }
 .btn-success{
     background-color: #5ad85e;
     color:#ffffff;
+}
+.my-tbl thead tr th{
+    padding:7px 5px;
+    background-color: rgb(180,180,180);
+    color:#333;
+    text-align: left;
+    font-weight: normal;
+}
+.my-tbl tbody tr td{
+    padding:5px;
+    border-bottom: 1px solid rgb(220,220,220);
+}
+.pagination{
+    margin-top: 10px;
+}
+.pagination .page-item a{
+    color:#ffffff;
+}
+.pagination .page-item{
+    padding:5px;
+    background-color:rgb(180,180,180);
+}
+.pagination .page-item.active a{
+    color:#ffffff;
+}
+.pagination .page-item.active{
+    background-color: #5ad85e;
 }
 /* admin panel */
 .admin-layout{
@@ -157,6 +187,11 @@ a{
     height: 100vh;
     background-color: #f5f7fd;
 }
+.admin-layout .table-container .form-input{
+    width:30%;
+    padding:5px;
+    margin-bottom: 10px;
+}
 /* top bar */
 .admin-layout .top-bar .inner-col{
     width:96%;
@@ -211,4 +246,36 @@ a{
 .admin-layout .admin-panel .admin-panel-body .book-list .fa-solid{
     color:red;
     cursor: pointer;
+}
+.admin-layout .response{
+    position:absolute;
+    padding:8px 15px;
+    width: 30%;
+    left:65%;
+    z-index: 100;
+    display: none;
+}
+.my-red{
+    background-color: red;
+    color: #ffffff;
+}
+.my-success{
+    background-color: #5ad85e;
+    color:white;
+}
+.admin-layout .response.displayed{
+    display: flex;
+}
+.admin-layout .responseClass{
+    display: none;
+}
+.admin-layout .response .col-10{
+    text-align: right;
+}
+.admin-layout .response .col-10 .fa-solid{
+    font-size: 20px;
+    cursor: pointer;
+}
+.admin-layout .response .col-90{
+    text-align: center;
 }
