@@ -1,7 +1,8 @@
 import os
 from flask import Flask, request,jsonify,json, session
 from flask_cors import CORS, cross_origin
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy#imports
+from sqlalchemy import desc
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
@@ -27,7 +28,7 @@ application = app
 # Set config values before initializing db
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postregress.$15/07/1998@localhost/book_club'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.config['UPLOAD_FOLDER'] = '../front/src/assets/images/bg/events'
+# app.config['BOOKS_FOLDER'] = 'uploads'
 # app.config['BLOG_FOLDER'] = '../front/src/assets/images/bg/blogs'
 # app.config['UPLOAD_PRODUCT'] = '../front/src/assets/images/bg/products'
 # app.config['MEMBER_FOLDER'] = '../front/src/assets/images/bg/members'

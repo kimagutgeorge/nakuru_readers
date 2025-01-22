@@ -74,7 +74,7 @@
       },
       rowsPerPage: {
         type: Number,
-        default: 5,
+        default: 10,
       },
       enableSearch: {
         type: Boolean,
@@ -138,4 +138,14 @@
     },
   };
   </script>
-  
+<style scoped>
+table thead tr th:first-child,
+table tbody tr td:first-child{
+  font-weight: bold;
+  width: 5%;
+  display: none;
+}
+table thead tr th{
+  font-weight: bold;
+}
+</style>

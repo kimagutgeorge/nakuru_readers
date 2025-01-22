@@ -20,7 +20,7 @@
         </div>
         <div class="col-90 col-flex" v-if="visiblebooks">
             <router-link to="/admin/manage-books" class="col-90 col-flex dark-nav-bar" active-class="is-active">
-                <i class="fa-solid fa-tags"></i> <span>Categories</span>
+                <i class="fa-solid fa-tags"></i> <span>Genres</span>
             </router-link>
         </div>
         <div class="col-90 col-flex" v-if="visiblebooks">
@@ -91,20 +91,12 @@ export default {
   },
   methods: {
         viewBookChildren () {
-            if (this.visiblebooks === false) {
-                this.visibleevents = false
-                this.visiblebooks = true
-            } else {
-                this.visiblebooks = false
-            }
+            this.visibleevents = false
+            this.visiblebooks = true
         },
         viewEventChildren () {
-            if (this.visibleevents === false) {
-                this.visibleevents = true
-                this.visiblebooks = false
-            } else {
-                this.visibleevents = false
-            }
+            this.visibleevents = true
+            this.visiblebooks = false
         }
     }
 }

@@ -22,6 +22,6 @@ module.exports = {
     'spaced-comment': 'off',
     'space-before-function-paren': 'off',
     'keyword-spacing': 'off',
-    
+    'no-undef': 'off'
   },
 }

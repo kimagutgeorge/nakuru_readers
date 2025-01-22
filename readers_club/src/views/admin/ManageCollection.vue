@@ -50,8 +50,8 @@ export default {
         const bookOption = selectedBook.options[selectedBook.selectedIndex].text
         if (!this.selectedbooks.find(book => book.id === currentBook)) {
             this.selectedbooks.push({
-                'name': bookOption,
-                'id': currentBook
+                name: bookOption,
+                id: currentBook
             })
         } 
     },
