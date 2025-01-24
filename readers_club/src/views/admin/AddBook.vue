@@ -15,6 +15,10 @@
                 <input type="file" class="universal-input form-input" @change="onFileChange" accept="image/*" />
             </div>
             <div class="col-50" style="margin-top:10px">
+              <label>Quantity</label>
+              <input type="number" class="universal-input form-input" v-model="quantity" />
+          </div>
+            <div class="col-50" style="margin-top:10px">
               <label>Buying Price</label>
               <input type="number" class="universal-input form-input" v-model="buyingPrice" />
           </div>
@@ -207,11 +211,7 @@
     },
     async addBook(){
         const editorContent = tinymce.get('editor_content').getContent()
-        const genre = this.genre
-        const bookName = this.bookName
-        const productImage = this.productImage
-        const collection = this.collection
-        if(editorContent == '' || genre == '' || bookName == '' || productImage == ''){
+        if(editorContent == '' || this.genre == '' || this.bookName == '' || this.productImage == '' || this.sellingPrice == '' || this.buyingPrice == '' || this.quantity == '' ){
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'Please fill the required Fields'
             return
@@ -219,10 +219,15 @@
         //set the form here
         const formData = new FormData()
         formData.append("description", editorContent)
-        formData.append("genre", genre)
-        formData.append("bookName", bookName)
-        formData.append("productImage", productImage)
-        formData.append("collection", collection)
+        formData.append("genre", this.genre)
+        formData.append("bookName", this.bookName)
+        formData.append("productImage", this.productImage)
+        formData.append("collection", this.collection)
+        formData.append("sellingPrice", this.sellingPrice)
+        formData.append("buyingPrice", this.buyingPrice)
+        formData.append("quantity", this.quantity)
+        formData.append("discount", this.discount)
+        
         //save info
         try {
             const response = await axios.post('http://127.0.0.1:5000/add-book', formData, {
@@ -235,20 +240,26 @@
             if(gotten_response == '1'){
               this.responseClass = 'my-success displayed';
               this.dbResponse =  'Added Successfully';
-              this.getCategories();
+              // clear form
+              this.genre = ''
+              this.bookName = ''
+              this.productImage = ''
+              this.collection = ''
+              tinymce.activeEditor.setContent('');
             }else if(gotten_response == '2'){
               this.responseClass = 'my-red displayed';
               this.dbResponse =  "Failed";
+            }else if(gotten_response == '3'){
+              this.responseClass = 'my-red displayed';
+              this.dbResponse = 'Failed. Error processing image';
+            }else if(gotten_response == '4'){
+              this.responseClass = 'my-red displayed';
+              this.dbResponse = 'Failed. Only jpeg, jpg, png, gif!';
             }else{
               this.responseClass = 'my-red displayed';
-              this.dbResponse = 'Book Already Exists!';
+              this.dbResponse = 'Already Exists!';
             }
-            // clear form
-            this.genre = ''
-            this.bookName = ''
-            this.productImage = ''
-            this.collection = ''
-            tinymce.activeEditor.setContent('');
+            
             }catch (error) {
                 if (error.response) {
                 this.responseClass = 'my-red displayed';

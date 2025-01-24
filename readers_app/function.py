@@ -74,56 +74,102 @@ def addBook():
     bookName = request.form.get('bookName')
     productImage = request.files['productImage']
     collection = request.form.get('collection')
-    return {"message": "1"}, 200
+    sellingPrice = request.form.get('sellingPrice')
+    buyingPrice = request.form.get('buyingPrice')
+    quantity = request.form.get('quantity')
+    discount = request.form.get('discount')
 
-    try:
-        # Secure the filename and split extension
-        original_filename = secure_filename(productImage.filename)
-        name, ext = os.path.splitext(original_filename)
+    if not discount:
+        discount = '0'
+    
+    if not collection:
+        collection = '1'
 
-        # Convert extension to lowercase
-        ext = ext.lower()
+    similar_book = db.session.query(BookProduct).filter( BookProduct.book_name == bookName).scalar()
 
-        # Validate the extension
-        if ext.lstrip(".") not in ALLOWED_EXTENSIONS:
-            return {"message": f"Invalid file type: {ext}"}, 400
+    if similar_book:
+        return {"message": "3"}, 200  # Event already exists
+    
+    else:
+        try:
+            # Secure the filename and split extension
+            original_filename = secure_filename(productImage.filename)
+            name, ext = os.path.splitext(original_filename)
+            
+            # Convert extension to lowercase
+            ext = ext.lower()
 
-        # Create the final filename
-        filename = f"{name}{ext}"
+            # Validate the extension
+            if ext.lstrip(".") not in ALLOWED_EXTENSIONS:
+                return {"message": "4"}, 200 # invalid extension
 
-        # Open the image
-        img = Image.open(productImage)
+            # Create the final filename
+            filename = f"{name}{ext}"
 
-        # Convert RGBA to RGB if necessary
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
+            # Open the image
+            img = Image.open(productImage)
 
-        # Define target size (e.g., 1200x800 for blog banners)
-        target_size = (600, 600)
-        img_resized = img.resize(target_size, Image.Resampling.LANCZOS)
+            # Convert RGBA to RGB if necessary
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
 
-        # Ensure the upload folder exists
-        os.makedirs(app.config['BOOKS_FOLDER'], exist_ok=True)
+            # Define target size (e.g., 1200x800 for blog banners)
+            target_size = (800, 800)
+            img_resized = img.resize(target_size, Image.Resampling.LANCZOS)
 
-        # Save the resized image to the upload folder
-        file_path = os.path.join(app.config['BOOKS_FOLDER'], filename)
-        img_resized.save(file_path, "JPEG" if ext in {".jpg", ".jpeg"} else ext.lstrip("."))
+            # Ensure the upload folder exists
+            os.makedirs(app.config['BOOKS_FOLDER'], exist_ok=True)
 
-        # Save blog details to the database
-        new_blog = Blogs(
-            blog_name=blog_name,
-            blog_writer=blog_writer,
-            blog_category=blog_category,
-            blog_content=blog_content,
-            productImage=filename
-        )
+            # Save the resized image to the upload folder
+            file_path = os.path.join(app.config['BOOKS_FOLDER'], filename)
+            img_resized.save(file_path, "JPEG" if ext in {".jpg", ".jpeg"} else ext.lstrip("."))
 
-        if new_blog:
-            db.session.add(new_blog)
-            db.session.commit()
-            return {"message": "1"}, 200  # Blog saved successfully
-        else:
-            return {"message": "2"}, 404  # Error saving the blog
+            # Save blog details to the database
+            new_book = BookProduct(
+                book_genre = genre,
+                book_name = bookName,
+                book_image = filename,
+                book_collection = collection,
+                book_selling_price = sellingPrice,
+                book_buying_price = buyingPrice,
+                book_quantity = quantity,
+                book_balance = quantity,
+                book_discount = discount,
+                book_description = description
+            )
 
-    except Exception as e:
-        return {"message": f"Error processing image {productImage.filename}: {e}"}, 500
+            if new_book:
+                db.session.add(new_book)
+                db.session.commit()
+                return {"message": "1"}, 200  # book saved successfully
+            else:
+                return {"message": "2"}, 100  # Error saving the book
+
+        except Exception as e:
+            print(e)
+            return {"message": "3"}, 200 # error processing image
+
+# get products
+@app.route('/get-products', methods = ['GET'])
+def getProducts():
+    products = BookProduct.query.order_by(desc(BookProduct.book_id)).all()  # Fetch all products from the database
+    # Build the result with image URLs
+    result = []
+    for book in products:
+        image_url = url_for('static', filename=f'uploads/products/{book.book_image}', _external=True)
+        result.append({
+            'id': book.book_id,
+            'name': book.book_name,
+            'price': book.book_selling_price,
+            'balance': book.book_balance,
+            'image': image_url
+        })
+    
+    return jsonify(result), 201
+
+# get product session
+@app.route('/product-to-view', methods = ['POST'])
+def getProductSession():
+    data = request.get_json()
+    session["product_id"] = data.get('product_id')
+    return {"message": "1"}, 200 # session created

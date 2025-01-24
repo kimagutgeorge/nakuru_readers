@@ -87,6 +87,8 @@ export default {
             if(gotten_response == '1'){
               this.responseClass = 'my-success displayed';
               this.dbResponse =  'Added Successfully';
+              //clear form
+              this.category_name = ''
               this.getCategories();
             }else if(gotten_response == '2'){
               this.responseClass = 'my-red displayed';
@@ -95,8 +97,6 @@ export default {
               this.responseClass = 'my-red displayed';
               this.dbResponse = 'Genre Already Exists!';
             }
-            
-            this.category_name = ''
         }catch (error) {
             if (error.response) {
               this.responseClass = 'my-red displayed';
@@ -123,7 +123,6 @@ export default {
           ...category,
           isReadOnly:true
         }))
-        console.log(this.categories)
         } else {
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'No genres found!';

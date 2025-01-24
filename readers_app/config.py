@@ -28,7 +28,7 @@ application = app
 # Set config values before initializing db
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postregress.$15/07/1998@localhost/book_club'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.config['BOOKS_FOLDER'] = 'uploads'
+app.config['BOOKS_FOLDER'] = 'static/uploads/products'
 # app.config['BLOG_FOLDER'] = '../front/src/assets/images/bg/blogs'
 # app.config['UPLOAD_PRODUCT'] = '../front/src/assets/images/bg/products'
 # app.config['MEMBER_FOLDER'] = '../front/src/assets/images/bg/members'
