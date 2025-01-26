@@ -29,7 +29,7 @@ def addCategory():
 @app.route('/get-categories', methods=['GET'])
 def getCategories():
     categories = BookCategory.query.order_by(desc(BookCategory.book_category_id)).all()  # Fetch all categories from the database
-    result = [{'id': category.book_category_id, 'name': category.book_category_name} for category in categories]
+    result = [{'id': category.book_category_id, 'name': category.book_category_name, 'status': category.book_category_status } for category in categories]
     return jsonify(result), 201
 
 # edit category
@@ -44,6 +44,24 @@ def editCategories():
     if category:
          # Update the name
         category.book_category_name = cat_name 
+         # Commit the changes
+        db.session.commit() 
+        return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200
+
+# change status category
+@app.route('/status-category', methods=['POST'])
+def editStatusCategory():
+    data = request.get_json()
+    cat_id = data.get('cat_id')
+    cat_status = data.get('cat_status')
+
+    # Fetch the category by its ID
+    category = BookCategory.query.get(cat_id)  
+    if category:
+         # Update the status
+        category.book_category_status = cat_status 
          # Commit the changes
         db.session.commit() 
         return {"message": "1"}, 200
@@ -173,3 +191,88 @@ def getProductSession():
     data = request.get_json()
     session["product_id"] = data.get('product_id')
     return {"message": "1"}, 200 # session created
+
+# add collection
+@app.route('/add-collection', methods=['POST'])
+def addCollection():
+    data = request.get_json()
+    collection_name = data.get('name')
+    status = 1  # Active status
+
+    if collection_name:
+        # Check if the category already exists
+        existing_collection = BookCollection.query.filter_by(book_collection_name=collection_name).first()
+        if existing_collection:
+            return {"message": "3"}, 201  # Conflict status code
+
+        # Create a new Category instance
+        new_collection = BookCollection(book_collection_name=collection_name, book_collection_status=status)
+        
+        # Add the new category to the session
+        db.session.add(new_collection)
+        
+        # Commit the session to save it in the database
+        db.session.commit()
+
+        return {"message": "1"}, 201  # Created status code
+    else:
+        return {"message": "2"}, 201  # Bad request
+    
+# fetch collections
+@app.route('/get-collections', methods=['GET'])
+def getCollections():
+    collections = BookCollection.query.order_by(desc(BookCollection.book_collection_id)).all()  # Fetch all collections from the database
+    result = [{'id': collection.book_collection_id, 'name': collection.book_collection_name, 'status': collection.book_collection_status } for collection in collections]
+    return jsonify(result), 201
+
+# edit collection
+@app.route('/save-collection', methods=['POST'])
+def editCollection():
+    data = request.get_json()
+    collection_id = data.get('id')
+    collection_name = data.get('name')
+
+    # Fetch the collection by its ID
+    collection = BookCollection.query.get(collection_id)  
+    if collection:
+         # Update the name
+        collection.book_collection_name = collection_name 
+         # Commit the changes
+        db.session.commit() 
+        return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200
+    
+#delete collection    
+@app.route('/del-collection', methods = ['POST'])
+def deleteCollection():
+    data = request.get_json()
+    cat_id = data.get('id')
+
+    # Fetch the category by its ID
+    collection = BookCollection.query.get(cat_id)  
+    if collection:
+        # If the collection exists, delete it
+        db.session.delete(collection)
+        db.session.commit() 
+        return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200
+
+# change status collection
+@app.route('/status-collection', methods=['POST'])
+def editStatusCollection():
+    data = request.get_json()
+    collection_id = data.get('collection_id')
+    collection_status = data.get('collection_status')
+
+    # Fetch the category by its ID
+    collection = BookCollection.query.get(collection_id)  
+    if collection:
+         # Update the status
+        collection.book_collection_status = collection_status 
+         # Commit the changes
+        db.session.commit() 
+        return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200

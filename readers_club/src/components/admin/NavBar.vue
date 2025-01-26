@@ -97,7 +97,16 @@ export default {
         viewEventChildren () {
             this.visibleevents = true
             this.visiblebooks = false
+        },
+        getUrl(){
+            const url = window.location.href
+            if(url == 'http://localhost:8080/admin/books' || url == 'http://localhost:8080/admin/add-book' || url == 'http://localhost:8080/admin/manage-books' || url == 'http://localhost:8080/admin/manage-collections' || url == 'http://localhost:8080/admin/rating-book' ){
+                this.visiblebooks = true
+            }
         }
+    },
+    mounted() {
+        this.getUrl();
     }
 }
 </script>

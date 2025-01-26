@@ -35,6 +35,10 @@
                             :class="category.isReadOnly ? 'fa-solid fa-edit text-primary' : 'fa-solid fa-check text-success'"
                             @click="category.isReadOnly ? makeEditable(index) : saveCategory(category.id, category.name)"
                             ></i>
+                            <i 
+                            :class="category.status === 1 ? 'fa-solid fa-toggle-on text-success' : 'fa-solid fa-toggle-off text-danger'" 
+                            @click="toggleStatus(category)"
+                            ></i>
                             <i class="fa-solid fa-trash" @click="deleteCategory(category.id)"></i>
                           </td>
                       </tr>
@@ -138,6 +142,13 @@ export default {
     makeEditable(index){
       this.categories[index].isReadOnly = false
     },
+    toggleStatus(category) {
+    // Toggle the status between 0 and 1
+    category.status = category.status === 1 ? 0 : 1;
+
+    // Optionally, save the status change to the server
+    this.saveCategoryStatus(category.id, category.status);
+  },
     async saveCategory(id, name){
       const catId = id
       const catName = name
@@ -157,6 +168,34 @@ export default {
           if(gotten_response == '1'){
             this.responseClass = 'my-success displayed';
             this.dbResponse =  'Updated Successfully';
+            this.getCategories();
+          }else if(gotten_response == '2'){
+            this.responseClass = 'my-red displayed';
+            this.dbResponse =  "Failed";
+          }
+          
+      }catch (error) {
+          if (error.response) {
+            this.responseClass = 'my-red displayed';
+            this.dbResponse = 'Failed. Server Offline. Please try again later.';
+            if (error.response) {
+              this.dbResponse = error.response;
+            }
+          }
+      }
+    },
+    async saveCategoryStatus(id, status){
+      try {
+          const response = await axios.post('http://127.0.0.1:5000/status-category', {
+          cat_id: id,
+          cat_status: status
+          })
+          const data = response.data
+          //response
+          const gotten_response = data.message
+          if(gotten_response == '1'){
+            this.responseClass = 'my-success displayed';
+            this.dbResponse = 'Updated Successfully';
             this.getCategories();
           }else if(gotten_response == '2'){
             this.responseClass = 'my-red displayed';

@@ -5,7 +5,14 @@ class BookCategory(db.Model):
     __tablename__ = 'book_categories'
     book_category_id = db.Column(db.Integer, primary_key=True)
     book_category_name = db.Column(db.String(100), unique=True, nullable=False)
-    book_category_status = db.Column(db.Integer, nullable=False) 
+    book_category_status = db.Column(db.Integer, nullable=False)
+
+# book genres
+class BookCollection(db.Model):
+    __tablename__ = 'book_collections'
+    book_collection_id = db.Column(db.Integer, primary_key=True)
+    book_collection_name = db.Column(db.String(100), unique=True, nullable=False)
+    book_collection_status = db.Column(db.Integer, nullable=False) 
 
 # book prduct details
 class BookProduct(db.Model):

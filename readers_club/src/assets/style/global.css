@@ -266,6 +266,14 @@ li{
     background-color: red;
     color:#ffffff;
 }
+.admin-layout table tbody tr td .fa-toggle-off{
+    background-color: red;
+    color:#ffffff;
+}
+.admin-layout table tbody tr td .fa-toggle-on{
+    background-color: green;
+    color:#ffffff;
+}
 /* top bar */
 .admin-layout .top-bar .inner-col{
     width:96%;

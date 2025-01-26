@@ -32,16 +32,15 @@
         </div>
             <div class="col-50" style="margin-top:10px">
                 <label>Genre</label>
-                <select class="universal-input form-input" v-model="genre" placeholder="Select Genre">
+                <select class="universal-input form-input" v-model="genre">
                     <option  v-for="(category, index) in categories" :key="index"  :value="category.id">{{ category.name }}</option>
                 </select>
             </div>
             <div class="col-50" style="margin-top:10px">
                 <label>Collection</label>
                 <select class="universal-input form-input" v-model="collection">
-                    <option value="1">New Arrival</option>
-                    <option value="2">Best Sellers</option>
-                </select>
+                  <option  v-for="(collection, index) in collections" :key="index"  :value="collection.id">{{ collection.name }}</option>
+              </select>
             </div>
             <div class="col-100" style="margin-top:10px">
                 <label style="padding-bottom:10px;">Description</label>
@@ -72,6 +71,7 @@
         responseClass: '',
         dbResponse: '',
         categories: [],
+        collections: [],
         genre: '',
         imageUrl: '',
         bookName: '',
@@ -109,6 +109,30 @@
         } else {
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'No genres found!';
+          }
+        } catch (error) {
+          this.responseClass = 'my-red displayed';
+          this.dbResponse = 'Failed. Server Offline. Please try again later.';
+          if (error.response) {
+            this.dbResponse = error.response;
+          }
+        }
+    },
+    async getCollections(){
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/get-collections');
+
+        const data = response.data;
+
+        if (data.length > 0) {
+          this.collections = data;
+          this.collections = this.collections.map(collection => ({
+          ...collection,
+          isReadOnly:true
+        }))
+        } else {
+            this.responseClass = 'my-red displayed';
+            this.dbResponse = 'No Collections found!';
           }
         } catch (error) {
           this.responseClass = 'my-red displayed';
@@ -273,6 +297,7 @@
     },
     mounted() {
         this.getCategories();
+        this.getCollections();
         this.InitEditor();
     }
   }
