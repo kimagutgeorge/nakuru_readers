@@ -8,46 +8,52 @@
          <div class="col-60 col-flex">
             <div class="col-50" style="margin-top:10px">
                 <label>Book Name</label>
-                <input type="text" class="universal-input form-input" v-model="bookName" placeholder="Book Name">
+                <input type="text" class="universal-input form-input" :readonly="!editable" v-model="bookName" placeholder="Book Name">
             </div>
-            <div class="col-50" style="margin-top:10px">
+            <!-- <div class="col-50" style="margin-top:10px">
                 <label>Image</label>
-                <input type="file" class="universal-input form-input" @change="onFileChange" accept="image/*" />
-            </div>
+                <input type="file" class="universal-input form-input" :disabled="!editable" @change="onFileChange" accept="image/*" />
+            </div> -->
             <div class="col-50" style="margin-top:10px">
               <label>Quantity</label>
-              <input type="number" class="universal-input form-input" v-model="quantity" />
+              <input type="number" class="universal-input form-input" :readonly="!editable" v-model="quantity" />
           </div>
             <div class="col-50" style="margin-top:10px">
               <label>Buying Price</label>
-              <input type="number" class="universal-input form-input" v-model="buyingPrice" />
+              <input type="number" class="universal-input form-input" :readonly="!editable" v-model="buyingPrice" />
           </div>
             <div class="col-50" style="margin-top:10px">
               <label>Selling Price</label>
-              <input type="number" class="universal-input form-input" v-model="sellingPrice" />
+              <input type="number" class="universal-input form-input" :readonly="!editable" v-model="sellingPrice" />
           </div>
           <div class="col-50" style="margin-top:10px">
             <label>Discount (%, Optional)</label>
-            <input type="number" class="universal-input form-input" v-model="discount" />
+            <input type="number" class="universal-input form-input" :readonly="!editable" v-model="discount" />
         </div>
             <div class="col-50" style="margin-top:10px">
                 <label>Genre</label>
-                <select class="universal-input form-input" v-model="genre">
+                <select class="universal-input form-input" :disabled="!editable" v-model="new_genre">
+                    <option :value="genreid">{{ genre }}</option>
                     <option  v-for="(category, index) in categories" :key="index"  :value="category.id">{{ category.name }}</option>
                 </select>
             </div>
             <div class="col-50" style="margin-top:10px">
                 <label>Collection</label>
-                <select class="universal-input form-input" v-model="collection">
+                <select class="universal-input form-input" :disabled="!editable" v-model="new_collection">
+                  <option :value="collectionid">{{ collection }}</option>
                   <option  v-for="(collection, index) in collections" :key="index"  :value="collection.id">{{ collection.name }}</option>
               </select>
             </div>
             <div class="col-100" style="margin-top:10px">
                 <label style="padding-bottom:10px;">Description</label>
-                <textarea id="editor_content"></textarea>
+                <div id="editor_content" v-html="description"></div>
+                <!-- <textarea id="editor_content"></textarea> -->
             </div>
             <div class="col-100" style="margin-top:10px">
-                <button class="btn btn-success" @click="addBook">SAVE <i class="fa-solid fa-save"></i></button>
+              <button class="btn btn-success btn-primary" @click="toggleEdit">
+                {{ editable ? 'SAVE' : 'EDIT' }} 
+                <i :class="editable ? 'fa-solid fa-save' : 'fa-solid fa-edit'"></i>
+              </button>
             </div>
          </div>
          <!-- en of form details -->
@@ -65,7 +71,8 @@
   import AdminResponse from '@/components/admin/AdminResponse.vue';
   
   export default {
-    name: 'AddBook',
+    name: 'AdminProduct',
+    props: ['id'],
     data() {
       return {
         responseClass: '',
@@ -81,6 +88,12 @@
         buyingPrice: '',
         quantity: '',
         discount: '',
+        description: '',
+        editable: false,
+        collectionid: '',
+        genreid: '',
+        new_genre:'',
+        new_collection:'',
       }
     },
     components: {
@@ -90,6 +103,14 @@
       closeResponse() {
         this.responseClass = '';
         this.dbResponse = '';
+      },
+      toggleEdit() {
+        this.editable = !this.editable;
+        this.InitEditor();
+        //save data after edit
+        if(this.editable == false){
+          this.editBook();
+        }
       },
       changeReadType() {
         if(this.bookType == '1'){
@@ -233,20 +254,20 @@
         this.imageUrl = null; // Clear the image if no file is selected
       }
     },
-    async addBook(){
-        const editorContent = tinymce.activeEditor.getContent() // tinymce.post('editor_content').getContent()
-        if(editorContent == '' || this.genre == '' || this.bookName == '' || this.productImage == '' || this.sellingPrice == '' || this.buyingPrice == '' || this.quantity == '' ){
+    async editBook(){
+      const editorContent = tinymce.activeEditor.getContent() // tinymce.post('editor_content').getContent()
+        if(editorContent == '' || this.genre == '' || this.bookName == '' || this.sellingPrice == '' || this.buyingPrice == '' || this.quantity == '' ){
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'Please fill the required Fields'
             return
         }
         //set the form here
         const formData = new FormData()
+        formData.append("id", this.id)
         formData.append("description", editorContent)
-        formData.append("genre", this.genre)
+        formData.append("genre", this.new_genre)
         formData.append("bookName", this.bookName)
-        formData.append("productImage", this.productImage)
-        formData.append("collection", this.collection)
+        formData.append("collection", this.new_collection)
         formData.append("sellingPrice", this.sellingPrice)
         formData.append("buyingPrice", this.buyingPrice)
         formData.append("quantity", this.quantity)
@@ -254,7 +275,7 @@
         
         //save info
         try {
-            const response = await axios.post('http://127.0.0.1:5000/add-book', formData, {
+            const response = await axios.post('http://127.0.0.1:5000/edit-book', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }});
@@ -263,13 +284,15 @@
             const gotten_response = data.message
             if(gotten_response == '1'){
               this.responseClass = 'my-success displayed';
-              this.dbResponse =  'Added Successfully';
+              this.dbResponse =  'Updated Successfully';
               // clear form
               this.genre = ''
               this.bookName = ''
               this.productImage = ''
               this.collection = ''
               tinymce.activeEditor.setContent('');
+              tinymce.get('editor_content').destroy();
+              this.getProduct();
             }else if(gotten_response == '2'){
               this.responseClass = 'my-red displayed';
               this.dbResponse =  "Failed";
@@ -293,12 +316,46 @@
                 }
                 }
             }
+        },
+    async getProduct(){
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/get-product', {
+          id:this.id
+        });
+        const data = response.data;
+        if (data.length > 0) {
+          const data = response.data;
+          const product = data[0]
+          this.bookName = product.name
+          this.quantity = product.balance
+          this.sellingPrice = product.price
+          this.buyingPrice = product.b_price
+          this.discount = product.discount
+          this.genre = product.genre
+          this.collection = product.collection
+          this.imageUrl = product.image
+          this.description = product.description
+          this.collectionid = product.collection_id
+          this.genreid = product.genre_id
+          this.new_genre = product.genre_id
+          this.new_collection = product.collection_id
+        } else {
+            this.responseClass = 'my-red displayed';
+            this.dbResponse = 'Product Not Found!';
+          }
+        } catch (error) {
+          this.responseClass = 'my-red displayed';
+          this.dbResponse = 'Failed. Server Offline. Please try again later.';
+          if (error.response) {
+            this.dbResponse = error.response;
+          }
         }
+    },
     },
     mounted() {
         this.getCategories();
         this.getCollections();
-        this.InitEditor();
+        this.getProduct();
     }
   }
   </script>

@@ -44,15 +44,6 @@
                       </tr>
                       </tbody>
                       </table>
-                      <!-- end of table -->
-                <!-- <DataTable
-                :data="categories"
-                :columns="columns"
-                :rows-per-page="5"
-                :enable-search="true"
-                :enable-pagination="true"
-                /> -->
-                  <!-- end of data table -->
             </div>
         </div>
     </div>

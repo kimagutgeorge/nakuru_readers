@@ -62,7 +62,7 @@ import axios from 'axios';
 import AdminResponse from '@/components/admin/AdminResponse.vue';
 // import DataTable from '@/components/admin/DataTable.vue';
 export default {
-  name: 'ManageBook',
+  name: 'AdminCollection',
   components: {
     AdminResponse, //DataTable
   },

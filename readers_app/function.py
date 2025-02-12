@@ -185,12 +185,34 @@ def getProducts():
     
     return jsonify(result), 201
 
-# get product session
-@app.route('/product-to-view', methods = ['POST'])
-def getProductSession():
+# view single product
+@app.route('/get-product', methods = ['POST'])
+def viewProduct():
     data = request.get_json()
-    session["product_id"] = data.get('product_id')
-    return {"message": "1"}, 200 # session created
+    id = data.get("id")
+    
+    products = db.session.query(BookProduct, BookCategory, BookCollection).join(BookCategory, BookProduct.book_genre == BookCategory.book_category_id).join(BookCollection, BookProduct.book_collection == BookCollection.book_collection_id).filter(BookProduct.book_id == id)
+
+    # Build the result with image URLs
+    result = []
+    for book, category, collection in products:
+        image_url = url_for('static', filename=f'uploads/products/{book.book_image}', _external=True)
+        result.append({
+            'id': book.book_id,
+            'name': book.book_name,
+            'price': book.book_selling_price,
+            'b_price':book.book_buying_price,
+            'balance': book.book_balance,
+            'discount': book.book_discount,
+            'genre': category.book_category_name,
+            'genre_id': book.book_genre,
+            'collection': collection.book_collection_name,
+            'collection_id': book.book_collection,
+            'image': image_url,
+            'description': book.book_description
+        })
+    
+    return jsonify(result), 201
 
 # add collection
 @app.route('/add-collection', methods=['POST'])
@@ -276,3 +298,73 @@ def editStatusCollection():
         return {"message": "1"}, 200
     else:
         return {"message": "2"}, 200
+
+# Edit product
+@app.route('/edit-book', methods=['POST'])
+def editBook():
+    description = request.form.get("description")
+    genre = request.form.get("genre")
+    bookName = request.form.get("bookName")
+    collection = request.form.get("collection")
+    sellingPrice = request.form.get("sellingPrice")
+    buyingPrice = request.form.get("buyingPrice")
+    quantity = request.form.get("quantity")
+    discount = request.form.get("discount")
+    product_id = request.form.get("id")
+
+    try:
+        # Start a transaction
+        with db.session.begin():
+            # Fetch the book with row-level locking
+            product = db.session.execute(
+                select(BookProduct)
+                .where(BookProduct.book_id == product_id)
+                .with_for_update()
+            ).scalar_one()
+
+            if product:
+                # Update the product details
+                product.book_genre = genre
+                product.book_name = bookName
+                product.book_collection = collection
+                product.book_selling_price = sellingPrice
+                product.book_buying_price = buyingPrice
+                product.book_quantity = quantity
+                product.book_balance = quantity
+                product.book_discount = discount
+                product.book_description = description
+
+                # Commit the changes (implicitly done by the context manager)
+                return {"message": "1"}, 200
+            else:
+                return {"message": "2"}, 200
+    except Exception as e:
+        # Rollback in case of error
+        db.session.rollback()
+        return {"message": f"An error occurred: {str(e)}"}, 500
+
+# delete book
+@app.route('/del-book', methods=['POST'])
+def delBook():
+    data = request.get_json()
+    book_id = data.get('id')
+
+    # Query the `event_banner` column for the given `event_id`
+    book_banner = db.session.query(BookProduct).with_entities(BookProduct.book_image).filter_by(book_id=book_id).first()
+
+    # Access the result
+    if book_banner:
+        book_banner_value = book_banner[0]  # Get the `event_banner` value from the tuple
+        folder_path = app.config['BOOKS_FOLDER']
+        file_path = os.path.join(folder_path, book_banner_value)
+        os.remove(file_path)
+
+        # delete event details from db
+        book = BookProduct.query.get(book_id)  
+        if book:
+            # If the category exists, delete it
+            db.session.delete(book)
+            db.session.commit() 
+            return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200 # error deleting

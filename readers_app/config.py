@@ -1,15 +1,15 @@
 import os
-from flask import Flask, request,jsonify,json, session
+from flask import Flask, request,jsonify,json, session, url_for
 from flask_cors import CORS, cross_origin
-from flask_sqlalchemy import SQLAlchemy#imports
-from sqlalchemy import desc
+# from flask_sqlalchemy import SQLAlchemy#imports
+# from sqlalchemy import desc
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import DateTime
-from sqlalchemy import func
-from sqlalchemy import or_
-from flask import url_for
+from sqlalchemy import DateTime, func, select, or_ , desc
+# from sqlalchemy import func
+# from sqlalchemy import or_
+# from flask import url_for
 import random
 import string
 from flask_mail import Mail, Message
