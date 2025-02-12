@@ -375,3 +375,86 @@ def getUsers():
     users = Users.query.order_by(desc(Users.user_id)).all()  # Fetch all categories from the database
     result = [{'id': user.user_id, 'f_name': user.user_first_name, 'l_name': user.user_last_name, 'phone': user.user_phone, 'email': user.user_email, 'status': user.user_is_active, 'photo': user.user_profile_picture } for user in users]
     return jsonify(result), 201
+
+# add user
+@app.route('/add-user', methods = ['POST'])
+def addUser():
+    description = request.form.get('description')
+    genre = request.form.get('genre')
+    bookName = request.form.get('bookName')
+    productImage = request.files['productImage']
+    collection = request.form.get('collection')
+    sellingPrice = request.form.get('sellingPrice')
+    buyingPrice = request.form.get('buyingPrice')
+    quantity = request.form.get('quantity')
+    discount = request.form.get('discount')
+
+    if not discount:
+        discount = '0'
+    
+    if not collection:
+        collection = '1'
+
+    similar_book = db.session.query(BookProduct).filter( BookProduct.book_name == bookName).scalar()
+
+    if similar_book:
+        return {"message": "3"}, 200  # Event already exists
+    
+    else:
+        try:
+            # Secure the filename and split extension
+            original_filename = secure_filename(productImage.filename)
+            name, ext = os.path.splitext(original_filename)
+            
+            # Convert extension to lowercase
+            ext = ext.lower()
+
+            # Validate the extension
+            if ext.lstrip(".") not in ALLOWED_EXTENSIONS:
+                return {"message": "4"}, 200 # invalid extension
+
+            # Create the final filename
+            filename = f"{name}{ext}"
+
+            # Open the image
+            img = Image.open(productImage)
+
+            # Convert RGBA to RGB if necessary
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+
+            # Define target size (e.g., 1200x800 for blog banners)
+            target_size = (800, 800)
+            img_resized = img.resize(target_size, Image.Resampling.LANCZOS)
+
+            # Ensure the upload folder exists
+            os.makedirs(app.config['USERS_FOLDER'], exist_ok=True)
+
+            # Save the resized image to the upload folder
+            file_path = os.path.join(app.config['USERS_FOLDER'], filename)
+            img_resized.save(file_path, "JPEG" if ext in {".jpg", ".jpeg"} else ext.lstrip("."))
+
+            # Save blog details to the database
+            new_book = BookProduct(
+                book_genre = genre,
+                book_name = bookName,
+                book_image = filename,
+                book_collection = collection,
+                book_selling_price = sellingPrice,
+                book_buying_price = buyingPrice,
+                book_quantity = quantity,
+                book_balance = quantity,
+                book_discount = discount,
+                book_description = description
+            )
+
+            if new_book:
+                db.session.add(new_book)
+                db.session.commit()
+                return {"message": "1"}, 200  # book saved successfully
+            else:
+                return {"message": "2"}, 100  # Error saving the book
+
+        except Exception as e:
+            print(e)
+            return {"message": "3"}, 200 # error processing image

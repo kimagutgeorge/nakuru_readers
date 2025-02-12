@@ -28,7 +28,7 @@
             </div>
             <div class="col-50" style="margin-top:10px">
                 <label>Preferred Genres</label>
-                <select class="universal-input form-input" v-model="genre" id="current_genre" @change="selectPrefferred">
+                <select class="universal-input form-input" id="current_genre" @change="selectPrefferred">
                     <option  v-for="(category, index) in categories" :key="index"  :value="category.id">{{ category.name }}</option>
                 </select>
             </div>
@@ -40,15 +40,15 @@
             </div>
             <div class="col-50" style="margin-top:10px">
                 <label>Location</label>
-                <input type="email" class="universal-input form-input" v-model="email" placeholder="Location">
+                <input type="email" class="universal-input form-input" v-model="location" placeholder="Location">
             </div>
             <div class="col-100" style="margin-top:10px">
                 <label style="padding-bottom:10px;">User Bio</label>
-                <textarea class="universal-input form-input" style="height:80px" placeholder="John Doe is a ..."></textarea>
+                <textarea class="universal-input form-input" style="height:80px" placeholder="John Doe is a ..." v-model="bio"></textarea>
             </div>
             
             <div class="col-100" style="margin-top:10px">
-                <button class="btn btn-success" @click="addBook">SAVE <i class="fa-solid fa-save"></i></button>
+                <button class="btn btn-success" @click="addUser">SAVE <i class="fa-solid fa-save"></i></button>
             </div>
          </div>
          <!-- en of form details -->
@@ -73,15 +73,13 @@
         dbResponse: '',
         categories: [],
         prefferred_genres: [],
+        fname: '',
+        lname: '',
+        phone: '',
+        email: '',
         genre: '',
-        imageUrl: '',
-        bookName: '',
-        productImage: '',
-        collection: '',
-        sellingPrice: '',
-        buyingPrice: '',
-        quantity: '',
-        discount: '',
+        location: '',
+        bio: ''
       }
     },
     components: {
@@ -125,119 +123,29 @@
           }
         }
     },
-    /* editor */
-    InitEditor(){
-    tinymce.init({
-      selector: '#editor_content',
-      plugins: [
-          // Core editing features
-          'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'link', 'lists', 'searchreplace', 'table', 'visualblocks', 'wordcount',
-          // Your account includes a free trial of TinyMCE premium features
-        //   'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown',
-          // Early access to document converters
-        //   'importword', 'exportword', 'exportpdf'
-      ],
-      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-      tinycomments_mode: 'embedded',
-      tinycomments_author: 'Author name',
-      mergetags_list: [
-          { value: 'First.Name', title: 'First Name' },
-          { value: 'Email', title: 'Email' },
-      ],
-      ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
-      
-      // Image upload configuration
-      images_upload_handler: function (blobInfo, success, failure) {
-        const formData = new FormData();
-        formData.append('file', blobInfo.blob(), blobInfo.filename());
-
-        fetch('app.php?action=edit-event', { // Replace with your server's upload endpoint
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result && result.location) {
-                success(result.location);
-            } else {
-                failure('Upload failed: Invalid response from server.');
-            }
-        })
-        .catch(error => {
-            failure('Upload failed: ' + error.message);
-        });
-    },
-
-    file_picker_callback: function (callback, value, meta) {
-        if (meta.filetype === 'image') {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
-
-            input.onchange = function () {
-                const file = this.files[0];
-                const reader = new FileReader();
-
-                reader.onload = function () {
-                    callback(reader.result, { alt: file.name });
-                };
-
-                reader.readAsDataURL(file);
-            };
-
-            input.click();
-        }
-    }
-  });
-  },
-  onFileChange(event) {
-      const file = event.target.files[0]; // Get the selected file
-      this.productImage = file
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.imageUrl = e.target.result; // Set the image URL
-        };
-        reader.readAsDataURL(file); // Read the file as a data URL
-      } else {
-        this.imageUrl = null; // Clear the image if no file is selected
-      }
-    },
-    uploadBook(event) {
-      const file = event.target.files[0]; // Get the selected file
-      this.book = file
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.imageUrl = e.target.result; // Set the image URL
-        };
-        reader.readAsDataURL(file); // Read the file as a data URL
-      } else {
-        this.imageUrl = null; // Clear the image if no file is selected
-      }
-    },
-    async addBook(){
-        const editorContent = tinymce.activeEditor.getContent() // tinymce.post('editor_content').getContent()
-        if(editorContent == '' || this.genre == '' || this.bookName == '' || this.productImage == '' || this.sellingPrice == '' || this.buyingPrice == '' || this.quantity == '' ){
+    async addUser(){
+        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == ''){
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'Please fill the required Fields'
             return
         }
+
         //set the form here
         const formData = new FormData()
-        formData.append("description", editorContent)
-        formData.append("genre", this.genre)
-        formData.append("bookName", this.bookName)
-        formData.append("productImage", this.productImage)
-        formData.append("collection", this.collection)
-        formData.append("sellingPrice", this.sellingPrice)
-        formData.append("buyingPrice", this.buyingPrice)
-        formData.append("quantity", this.quantity)
-        formData.append("discount", this.discount)
-        
+        formData.append("fname", this.fname)
+        formData.append("lname", this.lname)
+        formData.append("phone", this.phone)
+        formData.append("email", this.email)
+        formData.append("location", this.location)
+        formData.append("bio", this.bio)
+        this.prefferred_genres.forEach(function(genre){
+            const single_genre = genre.id
+            alert(single_genre)
+            // formData.append("genres[]", single_genre)
+        })
         //save info
         try {
-            const response = await axios.post('http://127.0.0.1:5000/add-book', formData, {
+            const response = await axios.post('http://127.0.0.1:5000/add-user', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }});
@@ -280,7 +188,6 @@
     },
     mounted() {
         this.getCategories();
-        this.InitEditor();
     }
   }
   </script>
