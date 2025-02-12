@@ -28,3 +28,28 @@ class BookProduct(db.Model):
     book_balance = db.Column(db.Integer, nullable = False)
     book_discount = db.Column(db.Integer, nullable = False)
     book_description = db.Column(db.Text, nullable = False)
+
+# users
+class Users(db.Model):
+    __tablename__ = 'users'
+    user_id = db.Column(db.Integer, primary_key = True)
+    user_first_name = db.Column(db.String(40), nullable = False)
+    user_last_name = db.Column(db.String(40), nullable = False)
+    user_phone = db.Column(db.Integer, nullable = False)
+    user_email = db.Column(db.String(80), nullable = False)
+    user_registration_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    user_is_verified = db.Column(db.Integer, default=False, nullable=False)
+    user_is_active = db.Column(db.Integer, default=False, nullable=True)
+    user_last_login = db.Column(db.DateTime, nullable=True)
+    user_preferred_genres = db.Column(db.JSON, default=list, nullable = True)
+    user_last_active = db.Column(db.DateTime, nullable=True)
+    user_total_books_read = db.Column(db.Integer, default=0)
+    user_currently_reading = db.Column(db.Integer, nullable=True)
+    user_wishlist = db.Column(db.JSON, default=list, nullable=True)
+    user_profile_picture = db.Column(db.String(200), nullable=True)
+    user_bio = db.Column(db.Text, nullable=True)
+    user_location = db.Column(db.String(100), nullable=True)
+    user_role = db.Column(db.String(20), default='1', nullable=False)
+    user_unread_notifications = db.Column(db.Integer, default=0)
+    user_total_time_spent_reading = db.Column(db.Integer, default=0)
+    user_average_rating = db.Column(db.Float, default=0.0)

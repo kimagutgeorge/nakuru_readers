@@ -69,8 +69,18 @@
             </router-link>
         </div>
         <div class="col-90 col-flex">
-            <router-link to="/admin/users" class="col-100" active-class="is-active">
+            <router-link to="/admin/users" @click="viewUserChildren" class="col-100" active-class="is-active">
                 <i class="fa-solid fa-users"></i> <span>Users</span>
+            </router-link>
+        </div>
+        <div class="col-90 col-flex" v-if="visibleusers">
+            <router-link to="/admin/add-user" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-plus"></i> <span>Add User</span>
+            </router-link>
+        </div>
+        <div class="col-90 col-flex" v-if="visibleusers">
+            <router-link to="/admin/users" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-list"></i> <span>Users</span>
             </router-link>
         </div>
         <div class="col-90 col-flex">
@@ -87,16 +97,24 @@ export default {
     return {
         visiblebooks: false,
         visibleevents: false,
+        visibleusers: false
     }
   },
   methods: {
         viewBookChildren () {
             this.visibleevents = false
+            this.visibleusers = false
             this.visiblebooks = true
         },
         viewEventChildren () {
-            this.visibleevents = true
             this.visiblebooks = false
+            this.visibleusers = false
+            this.visibleevents = true
+        },
+        viewUserChildren(){
+            this.visiblebooks = false
+            this.visibleevents = false
+            this.visibleusers = true
         },
         getUrl(){
             const url = window.location.href

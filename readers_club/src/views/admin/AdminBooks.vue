@@ -32,7 +32,6 @@
 <script>
 import AdminResponse from '@/components/admin/AdminResponse.vue';
 import axios from 'axios';
-import router from '@/router';
 
 export default {
   name: 'Books',

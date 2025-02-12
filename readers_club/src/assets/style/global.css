@@ -374,3 +374,15 @@ li{
 .admin-layout .response .col-90{
     text-align: center;
 }
+.admin-layout .genre-list{
+    padding:4px;
+    background-color: rgb(220,220,220);
+    border-radius: 3px;
+    margin-right: 3px;
+}
+.admin-layout .genre-list .fa-solid{
+    margin-left:5px;
+    color:red;
+    cursor: pointer;
+    margin-top: 3px;
+}

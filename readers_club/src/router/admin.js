@@ -1,11 +1,12 @@
 import Home from '@/views/admin/AdminDashboard.vue';
-import Users from '@/views/admin/AdminEvents.vue';
+import Users from '@/views/admin/AdminUsers.vue';
 import Events from '@/views/admin/AdminEvents.vue';
 import Books from '@/views/admin/AdminBooks.vue';
 import AddBook from '@/views/admin/AddBook.vue';
 import AdminProduct from '@/views/admin/AdminProduct.vue';
 import ManageBook from '@/views/admin/ManageBook.vue';
 import AdminCollection from '@/views/admin/ManageBook.vue'
+import AddUser from '@/views/admin/AddUser.vue';
 
 export default [
     {
@@ -50,6 +51,10 @@ export default [
         { path: '/admin/manage-collections', 
           name:'Collections',
           component: AdminCollection
+        },
+        { path: '/admin/add-user', 
+          name:'AddUser',
+          component: AddUser
         },
       ],
     },

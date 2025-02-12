@@ -368,3 +368,10 @@ def delBook():
             return {"message": "1"}, 200
     else:
         return {"message": "2"}, 200 # error deleting
+
+# get users
+@app.route('/get-users', methods=['GET'])
+def getUsers():
+    users = Users.query.order_by(desc(Users.user_id)).all()  # Fetch all categories from the database
+    result = [{'id': user.user_id, 'f_name': user.user_first_name, 'l_name': user.user_last_name, 'phone': user.user_phone, 'email': user.user_email, 'status': user.user_is_active, 'photo': user.user_profile_picture } for user in users]
+    return jsonify(result), 201
