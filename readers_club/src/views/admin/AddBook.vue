@@ -275,10 +275,10 @@
               this.dbResponse =  "Failed";
             }else if(gotten_response == '3'){
               this.responseClass = 'my-red displayed';
-              this.dbResponse = 'Failed. Error processing image';
+              this.dbResponse = 'Book Already Exists!';
             }else if(gotten_response == '4'){
               this.responseClass = 'my-red displayed';
-              this.dbResponse = 'Failed. Only jpeg, jpg, png, gif!';
+              this.dbResponse = 'Failed. Only jpeg, jpg, png';
             }else{
               this.responseClass = 'my-red displayed';
               this.dbResponse = 'Already Exists!';

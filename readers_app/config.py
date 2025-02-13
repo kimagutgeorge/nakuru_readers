@@ -47,6 +47,6 @@ app.secret_key = 'ae68177cfc47043d80d622007229de84348c9c43d36350e5b36366ddf308c4
 db = SQLAlchemy(app)
 
 # Allowed extensions for validation
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 # Allow CORS for requests from vue
 CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}}, supports_credentials=True)

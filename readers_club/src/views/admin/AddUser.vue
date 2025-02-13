@@ -55,7 +55,7 @@
          <div class="col-40">
             <div style="margin-left:5%" class="col-80" v-if="imageUrl">
                 <p>Selected Image:</p>
-                <img :src="imageUrl" alt="Selected" style="max-width: 100%; height: auto;margin-top:15px;" />
+                <img :src="imageUrl" alt="Selected" style="width:200px; height:200px;" />
               </div>
          </div>
         </div>
@@ -79,7 +79,9 @@
         email: '',
         genre: '',
         location: '',
-        bio: ''
+        bio: '',
+        profileImage:'',
+        imageUrl:''
       }
     },
     components: {
@@ -90,6 +92,19 @@
         this.responseClass = '';
         this.dbResponse = '';
       },
+      onFileChange(event) {
+      const file = event.target.files[0]; // Get the selected file
+      this.profileImage = file
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.imageUrl = e.target.result; // Set the image URL
+        };
+        reader.readAsDataURL(file); // Read the file as a data URL
+      } else {
+        this.imageUrl = null; // Clear the image if no file is selected
+      }
+    },
       selectPrefferred(){
         const currentGenre = document.getElementById("current_genre").value
         const selecTed = document.getElementById("current_genre");
@@ -138,10 +153,10 @@
         formData.append("email", this.email)
         formData.append("location", this.location)
         formData.append("bio", this.bio)
+        formData.append("productImage", this.profileImage)
         this.prefferred_genres.forEach(function(genre){
             const single_genre = genre.id
-            alert(single_genre)
-            // formData.append("genres[]", single_genre)
+            formData.append("genres[]", single_genre)
         })
         //save info
         try {
@@ -156,20 +171,26 @@
               this.responseClass = 'my-success displayed';
               this.dbResponse =  'Added Successfully';
               // clear form
+              this.prefferred_genres = ''
+              this.fname = ''
+              this.lname = ''
+              this.phone = ''
+              this.email = ''
               this.genre = ''
-              this.bookName = ''
-              this.productImage = ''
-              this.collection = ''
-              tinymce.activeEditor.setContent('');
+              this.location = ''
+              this.bio = ''
+              this.profileImage = ''
+              this.imageUrl = ''
+
             }else if(gotten_response == '2'){
               this.responseClass = 'my-red displayed';
               this.dbResponse =  "Failed";
             }else if(gotten_response == '3'){
               this.responseClass = 'my-red displayed';
-              this.dbResponse = 'Failed. Error processing image';
+              this.dbResponse = 'User Already Exists!';
             }else if(gotten_response == '4'){
               this.responseClass = 'my-red displayed';
-              this.dbResponse = 'Failed. Only jpeg, jpg, png, gif!';
+              this.dbResponse = 'Failed. Only jpeg, jpg, png';
             }else{
               this.responseClass = 'my-red displayed';
               this.dbResponse = 'Already Exists!';

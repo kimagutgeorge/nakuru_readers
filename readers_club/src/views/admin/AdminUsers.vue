@@ -9,7 +9,8 @@
           <thead>
               <tr>
                   <th hidden>#</th>
-                  <th style="width:70%;">User Name</th>
+                  <th style="width:70%;">User Details</th>
+                  <th>Account Details</th>
                   <th>Action</th>
               </tr>
           </thead>
@@ -17,7 +18,7 @@
               <tr v-for="(user, index) in users" :key="index">
                   <td hidden>{{ user.id }}</td>
                   <td>
-                    {{ user.name }}
+                    {{ user.f_name }} {{ user.l_name }}
                   </td>
                   <td>
                     <i 
