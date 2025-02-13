@@ -5,30 +5,36 @@
           <p><span  class="title-label">Users</span></p>
       </div>
       <div class="col-100 admin-panel-body table-container">
-        <table style="width:90%; margin-left:5%;" class="my-tbl" cellspacing="0">
+        <table style="width:98%" class="my-tbl" cellspacing="0">
           <thead>
               <tr>
                   <th hidden>#</th>
-                  <th style="width:70%;">User Details</th>
-                  <th>Account Details</th>
+                  <th style="width:50%;">User Details</th>
+                  <th style="width:20%">Account Status</th>
                   <th>Action</th>
               </tr>
           </thead>
           <tbody>
               <tr v-for="(user, index) in users" :key="index">
                   <td hidden>{{ user.id }}</td>
-                  <td>
-                    {{ user.f_name }} {{ user.l_name }}
+                  <td class="col-flex">
+                    <div class="col-20">
+                      <img :src="user.photo" alt="" style="width:60px;">
+                    </div>
+                    <div class="col-80">
+                      <p><span style="font-weight:bold">Name: </span>{{ user.f_name }} {{ user.l_name }}</p>
+                      <p><span style="font-weight:bold">Email: </span>{{ user.email }}</p>
+                      <p><span style="font-weight:bold">Phone: </span>+(254) {{ user.phone }}</p>
+                    </div>
+                    
                   </td>
-                  <td>
-                    <i 
-                    :class="user.isReadOnly ? 'fa-solid fa-edit text-primary' : 'fa-solid fa-check text-success'"
-                    @click="user.isReadOnly ? makeEditable(index) : saveuser(user.id, user.name)"
-                    ></i>
-                    <i 
-                    :class="user.status === 1 ? 'fa-solid fa-toggle-on text-success' : 'fa-solid fa-toggle-off text-danger'" 
-                    @click="toggleStatus(user)"
-                    ></i>
+                    <td>
+                      <p><span class="status-indicator">{{ user.status }}</span></p>
+                    </td>
+                    <td>
+                      <RouterLink :to="{ name: 'User Details', params: { id: user.id }}" :key="$route.fullPath"> 
+                        <i class="fa-solid fa-eye front-blue"></i>
+                        </RouterLink>
                     <i class="fa-solid fa-trash" @click="deleteUser(user.id)"></i>
                   </td>
               </tr>
@@ -78,6 +84,9 @@ export default {
             this.dbResponse = error.response;
           }
         }
+    },
+    deleteUser(id){
+      const user_id = id
     }
   },
   mounted(){

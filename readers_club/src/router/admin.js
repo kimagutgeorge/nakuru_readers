@@ -7,6 +7,7 @@ import AdminProduct from '@/views/admin/AdminProduct.vue';
 import ManageBook from '@/views/admin/ManageBook.vue';
 import AdminCollection from '@/views/admin/ManageBook.vue'
 import AddUser from '@/views/admin/AddUser.vue';
+import AdminViewUser from '@/views/admin/AdminViewUser.vue';
 
 export default [
     {
@@ -41,6 +42,12 @@ export default [
           path: '/admin/product/:id', 
           name:'Product Details',
           component: AdminProduct,
+          props:true
+        },
+        { 
+          path: '/admin/user/:id', 
+          name:'User Details',
+          component: AdminViewUser,
           props:true
         },
         { 

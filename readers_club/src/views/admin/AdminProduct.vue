@@ -93,7 +93,7 @@
         collectionid: '',
         genreid: '',
         new_genre:'',
-        new_collection:'',
+        new_collection:''
       }
     },
     components: {

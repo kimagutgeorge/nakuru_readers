@@ -269,6 +269,7 @@ li{
     font-size: 10px;
     border-radius: 3px;
 }
+.admin-layout table tbody tr td .fa-eye,
 .admin-layout table tbody tr td .fa-edit{
     color: #ffffff;
     background-color: rgb(0, 130, 189);
@@ -385,4 +386,10 @@ li{
     color:red;
     cursor: pointer;
     margin-top: 3px;
+}
+.status-indicator{
+    background-color: green;
+    color:#ffffff;
+    padding: 4px;
+    border-radius: 3px;
 }

@@ -372,8 +372,21 @@ def delBook():
 # get users
 @app.route('/get-users', methods=['GET'])
 def getUsers():
-    users = Users.query.order_by(desc(Users.user_id)).all()  # Fetch all categories from the database
-    result = [{'id': user.user_id, 'f_name': user.user_first_name, 'l_name': user.user_last_name, 'phone': user.user_phone, 'email': user.user_email, 'status': user.user_is_active, 'photo': user.user_profile_picture } for user in users]
+    # Fetch all users and format the result
+    users = Users.query.order_by(desc(Users.user_id)).all()  # Fetch all users from the database
+    result = []
+    for user in users:
+        image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        result.append({
+            'id': user.user_id,
+            'f_name': user.user_first_name,
+            'l_name': user.user_last_name,
+            'phone': user.user_phone,
+            'email': user.user_email,
+            'status': 'Active' if user.user_is_active == 1 else 'Inactive',  # Set status based on user_is_active
+            'photo': image_url
+        })
+        
     return jsonify(result), 201
 
 # Add user
@@ -456,3 +469,29 @@ def addUser():
         print(f"Error: {e}")
         db.session.rollback()  # Rollback in case of error
         return jsonify({"message": "2"}), 500  # Error saving the user
+
+# delete book
+@app.route('/del-user', methods=['POST'])
+def delUser():
+    data = request.get_json()
+    book_id = data.get('id')
+
+    # Query the `event_banner` column for the given `event_id`
+    book_banner = db.session.query(BookProduct).with_entities(BookProduct.book_image).filter_by(book_id=book_id).first()
+
+    # Access the result
+    if book_banner:
+        book_banner_value = book_banner[0]  # Get the `event_banner` value from the tuple
+        folder_path = app.config['BOOKS_FOLDER']
+        file_path = os.path.join(folder_path, book_banner_value)
+        os.remove(file_path)
+
+        # delete event details from db
+        book = BookProduct.query.get(book_id)  
+        if book:
+            # If the category exists, delete it
+            db.session.delete(book)
+            db.session.commit() 
+            return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200 # error deleting
