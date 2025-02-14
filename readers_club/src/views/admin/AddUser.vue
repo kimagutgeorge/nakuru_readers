@@ -139,12 +139,11 @@
         }
     },
     async addUser(){
-        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == ''){
+        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == '' || this.prefferred_genres == '' || this.imageUrl == ''){
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'Please fill the required Fields'
             return
         }
-
         //set the form here
         const formData = new FormData()
         formData.append("fname", this.fname)

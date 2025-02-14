@@ -2,7 +2,7 @@
     <AdminResponse v-if="responseClass.includes('displayed')" :class="['response-message', responseClass]" :dbResponse="dbResponse" @close="closeResponse" />
     <div class="admin-panel col-flex">
         <div class="col-100">
-            <p><span  class="title-label">Add Books</span></p>
+            <p><span  class="title-label">{{ bookName }}</span></p>
         </div>
         <div class="col-100 admin-panel-body col-flex">
          <div class="col-60 col-flex">

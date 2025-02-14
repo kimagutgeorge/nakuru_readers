@@ -2,13 +2,13 @@
     <AdminResponse v-if="responseClass.includes('displayed')" :class="['response-message', responseClass]" :dbResponse="dbResponse" @close="closeResponse" />
     <div class="admin-panel col-flex">
         <div class="col-100">
-            <p><span  class="title-label">Add User</span></p>
+            <p><span  class="title-label">{{ fname }} {{ lname }}</span></p>
         </div>
         <div class="col-100 admin-panel-body col-flex">
             <div class="col-50 col-flex">
-                <div style="margin-left:5%" class="col-80" v-if="imageUrl">
+                <div class="col-50" v-if="imageUrl">
                     <p>Profile </p>
-                    <img :src="imageUrl" alt="Selected" style="width:100px; height:100px;" />
+                    <img :src="imageUrl" alt="Selected" style="width:60px; margin-top:10px;" />
                   </div>
                   <div class="col-50" style="margin-top:10px">
                     <label>First Name</label>
@@ -33,14 +33,13 @@
                 <div class="col-50" style="margin-top:10px">
                     <label>Preferred Genres</label>
                     <select class="universal-input form-input" :disabled="!editable" v-model="new_genre" @change="selectPrefferred">
-                        <option :value="genreid">{{ genre }}</option>
                         <option  v-for="(category, index) in categories" :key="index"  :value="category.id">{{ category.name }}</option>
                     </select>
                 </div>
                 <div class="col-100 col-flex" style="margin-top:10px">
                     <div class="col-flex genre-list" v-for="(genre, index) in prefferred_genres" :key="index">
                         {{genre.name }}
-                        <i class="fa-solid fa-close" @click="deleteGenre(genre.id)"></i>
+                        <i class="fa-solid fa-close" v-if="editable" @click="deleteGenre(genre.id)"></i>
                     </div>
                 </div>
                 <div class="col-50" style="margin-top:10px">
@@ -60,8 +59,41 @@
                 </div>
              </div>
          <div class="col-50 col-flex">
-            <!-- other details -->
-         </div>
+          <div class="col-50" style="margin-top:10px;">
+            <label>Verified</label>
+            <input type="text" readonly class="universal-input form-input" v-model="is_verified" placeholder="Verified">
+        </div>
+        <div class="col-50" style="margin-top:10px">
+          <label>Active Status</label>
+          <input type="text" class="universal-input form-input" v-model="is_active" readonly placeholder="Active Status">
+        </div>
+        <div class="col-50" style="margin-top:10px">
+          <label>Last Login</label>
+          <input type="text" class="universal-input form-input" v-model="last_login" readonly placeholder="Last Login">
+        </div>
+        <div class="col-50" style="margin-top:10px">
+          <label>Last Active</label>
+          <input type="text" class="universal-input form-input" v-model="last_active" readonly placeholder="Last Active">
+        </div>
+        <div class="col-50" style="margin-top:10px">
+          <label>Total Books Read</label>
+          <input type="text" class="universal-input form-input" v-model="books" readonly placeholder="Books Read">
+        </div>
+        <div class="col-50" style="margin-top:10px">
+          <label>Role</label>
+          <input type="text" class="universal-input form-input" v-model="role" readonly placeholder="Role">
+        </div>
+        <div class="col-50" style="margin-top:10px">
+          <label>Unread Notifications</label>
+          <input type="text" class="universal-input form-input" v-model="notifications" readonly placeholder="Unread Notifications">
+        </div>
+        <div class="col-100 col-flex" style="margin-top:10px">
+          <label>Wishlist</label>
+          <div class="col-flex genre-list" v-for="(single_book, index) in wishlist" :key="index">
+              {{single_book.name }}
+          </div>
+        </div>
+        </div>
          <!-- en of form details -->
          
         </div>
@@ -73,6 +105,7 @@
   
   export default {
     name: 'AdminViewUser',
+    props: ['id'],
     data() {
       return {
         responseClass: '',
@@ -90,7 +123,17 @@
         imageUrl:'',
         editable: false,
         genreid:'',
-        new_genre:''
+        new_genre:'',
+        reg:'',
+        is_verified:'',
+        is_active:'',
+        last_login:'',
+        last_active:'',
+        books:'',
+        role:'',
+        notifications:'',
+        preferred_genres:'',
+        wishlist: []
       }
     },
     components: {
@@ -103,7 +146,7 @@
       },
       toggleEdit() {
         this.editable = !this.editable;
-        this.InitEditor();
+        // this.InitEditor();
         //save data after edit
         if(this.editable == false){
         //   this.editUser();
@@ -160,16 +203,26 @@
         const response = await axios.post('http://127.0.0.1:5000/get-user', {
           id:this.id
         });
-        const data = response.data;
-        if (data.length > 0) {
           const data = response.data;
-          const user = data[0]
-          // allocate values
-
-        } else {
-            this.responseClass = 'my-red displayed';
-            this.dbResponse = 'Product Not Found!';
-          }
+          //allocate values
+          this.fname = data.f_name
+          this.lname = data.l_name
+          this.phone = data.phone
+          this.email = data.email
+          this.location = data.location
+          this.bio = data.bio
+          this.imageUrl = data.photo
+          this.prefferred_genres = data.preferred_genres
+          this.reg = data.reg
+          this.is_verified = data.is_verified
+          this.is_active = data.is_active
+          this.last_login = data.last_login
+          this.last_active = data.last_active
+          this.books = data.books
+          this.role = data.role
+          this.notifications = data.notifications
+          this.preferred_genres = data.preferred_genres
+          this.wishlist = data.wishlist
         } catch (error) {
           this.responseClass = 'my-red displayed';
           this.dbResponse = 'Failed. Server Offline. Please try again later.';
@@ -178,9 +231,77 @@
           }
         }
     },
+    async editUser(){
+        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == '' || this.prefferred_genres == '' || this.imageUrl == ''){
+            this.responseClass = 'my-red displayed';
+            this.dbResponse = 'Please fill the required Fields'
+            return
+        }
+        //set the form here
+        const formData = new FormData()
+        formData.append("fname", this.fname)
+        formData.append("lname", this.lname)
+        formData.append("phone", this.phone)
+        formData.append("email", this.email)
+        formData.append("location", this.location)
+        formData.append("bio", this.bio)
+        formData.append("productImage", this.profileImage)
+        this.prefferred_genres.forEach(function(genre){
+            const single_genre = genre.id
+            formData.append("genres[]", single_genre)
+        })
+        //save info
+        try {
+            const response = await axios.post('http://127.0.0.1:5000/add-user', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }});
+            const data = response.data
+            //response
+            const gotten_response = data.message
+            if(gotten_response == '1'){
+              this.responseClass = 'my-success displayed';
+              this.dbResponse =  'Added Successfully';
+              // clear form
+              this.prefferred_genres = ''
+              this.fname = ''
+              this.lname = ''
+              this.phone = ''
+              this.email = ''
+              this.genre = ''
+              this.location = ''
+              this.bio = ''
+              this.profileImage = ''
+              this.imageUrl = ''
+
+            }else if(gotten_response == '2'){
+              this.responseClass = 'my-red displayed';
+              this.dbResponse =  "Failed";
+            }else if(gotten_response == '3'){
+              this.responseClass = 'my-red displayed';
+              this.dbResponse = 'User Already Exists!';
+            }else if(gotten_response == '4'){
+              this.responseClass = 'my-red displayed';
+              this.dbResponse = 'Failed. Only jpeg, jpg, png';
+            }else{
+              this.responseClass = 'my-red displayed';
+              this.dbResponse = 'Already Exists!';
+            }
+            
+            }catch (error) {
+                if (error.response) {
+                this.responseClass = 'my-red displayed';
+                this.dbResponse = 'Failed. Server Offline. Please try again later.';
+                if (error.response) {
+                    this.dbResponse = error.response;
+                }
+                }
+            }
+        }
     },
     mounted() {
         this.getCategories();
+        this.getUser();
     }
   }
   </script>

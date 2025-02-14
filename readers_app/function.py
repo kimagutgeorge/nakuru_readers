@@ -399,7 +399,8 @@ def addUser():
     email = request.form.get('email')
     location = request.form.get('location')
     bio = request.form.get('bio')
-    prefferred_genres = request.form.getlist('prefferred_genres[]')  # Get the array of preferred genres
+    prefferred_genres = request.form.getlist('genres[]')  # Get the array of preferred genres
+    print(prefferred_genres)
     productImage = request.files.get('productImage')  # Get the uploaded image
 
     # Check if a user with the same phone number already exists
@@ -495,3 +496,68 @@ def delUser():
             return {"message": "1"}, 200
     else:
         return {"message": "2"}, 200 # error deleting
+
+# view user
+@app.route('/get-user', methods=['POST'])
+def getUser():
+    data = request.get_json()
+    user_id = data.get("id")
+
+    if not user_id:
+        return jsonify({"message": "User ID is required"}), 400
+
+    try:
+        # Fetch the user details
+        user = Users.query.filter_by(user_id=user_id).first()
+
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+
+        # Fetch preferred genres
+        preferred_genres = []
+        wishlist = []
+        if user.user_wishlist:
+            wishlist_ids = user.user_wishlist
+            wishlist = (
+                db.session.query(BookCategory.book_category_id, BookCategory.book_category_name)
+                .filter(BookCategory.book_category_id.in_(wishlist_ids))
+                .all()
+            )
+            wishlist = [{"id": single_list.book_category_id, "name": single_list.book_category_name} for single_list in wishlist]
+        if user.user_preferred_genres:
+            # Convert JSON array of genre IDs to a list of genre names
+            genre_ids = user.user_preferred_genres
+            preferred_genres = (
+                db.session.query(BookCategory.book_category_id, BookCategory.book_category_name)
+                .filter(BookCategory.book_category_id.in_(genre_ids))
+                .all()
+            )
+            preferred_genres = [{"id": genre.book_category_id, "name": genre.book_category_name} for genre in preferred_genres]
+        image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        # Prepare the response
+        user_details = {
+            'id': user.user_id,
+            'f_name': user.user_first_name,
+            'l_name': user.user_last_name,
+            'phone': user.user_phone,
+            'email': user.user_email,
+            'location': user.user_location,
+            'bio': user.user_bio,
+            'photo': image_url,
+            'reg': user.user_registration_date,
+            'is_verified': user.user_is_verified,
+            'is_active': user.user_is_active,
+            'last_login': user.user_last_login,
+            'last_active': user.user_last_active,
+            'books': user.user_total_books_read,
+            'role': user.user_role,
+            'notifications': user.user_unread_notifications,
+            'preferred_genres': preferred_genres,
+            'wishlist': wishlist
+        }
+
+        return jsonify(user_details), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"message": "An error occurred while fetching user details"}), 500

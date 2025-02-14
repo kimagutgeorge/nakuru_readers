@@ -51,5 +51,4 @@ class Users(db.Model):
     user_location = db.Column(db.String(100), nullable=True)
     user_role = db.Column(db.String(20), default='1', nullable=False)
     user_unread_notifications = db.Column(db.Integer, default=0)
-    user_total_time_spent_reading = db.Column(db.Integer, default=0)
     user_average_rating = db.Column(db.Float, default=0.0)
