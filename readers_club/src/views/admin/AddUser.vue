@@ -139,7 +139,7 @@
         }
     },
     async addUser(){
-        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == '' || this.prefferred_genres == '' || this.imageUrl == ''){
+        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == '' || this.profileImage == ''){
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'Please fill the required Fields'
             return

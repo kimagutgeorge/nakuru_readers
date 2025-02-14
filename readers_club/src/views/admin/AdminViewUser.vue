@@ -8,7 +8,7 @@
             <div class="col-50 col-flex">
                 <div class="col-50" v-if="imageUrl">
                     <p>Profile </p>
-                    <img :src="imageUrl" alt="Selected" style="width:60px; margin-top:10px;" />
+                    <img :src="imageUrl" alt="No Profile" style="width:60px; margin-top:10px;" />
                   </div>
                   <div class="col-50" style="margin-top:10px">
                     <label>First Name</label>
@@ -32,7 +32,7 @@
                 </div>
                 <div class="col-50" style="margin-top:10px">
                     <label>Preferred Genres</label>
-                    <select class="universal-input form-input" :disabled="!editable" v-model="new_genre" @change="selectPrefferred">
+                    <select class="universal-input form-input" :disabled="!editable" v-model="new_genre" id="current_genre" @change="selectPrefferred">
                         <option  v-for="(category, index) in categories" :key="index"  :value="category.id">{{ category.name }}</option>
                     </select>
                 </div>
@@ -149,7 +149,7 @@
         // this.InitEditor();
         //save data after edit
         if(this.editable == false){
-        //   this.editUser();
+          this.editUser();
         }
       },
       onFileChange(event) {
@@ -232,13 +232,14 @@
         }
     },
     async editUser(){
-        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == '' || this.prefferred_genres == '' || this.imageUrl == ''){
+        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == ''){
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'Please fill the required Fields'
             return
         }
         //set the form here
         const formData = new FormData()
+        formData.append("user_id", this.id)
         formData.append("fname", this.fname)
         formData.append("lname", this.lname)
         formData.append("phone", this.phone)
@@ -252,7 +253,7 @@
         })
         //save info
         try {
-            const response = await axios.post('http://127.0.0.1:5000/add-user', formData, {
+            const response = await axios.post('http://127.0.0.1:5000/edit-user', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }});
@@ -263,16 +264,6 @@
               this.responseClass = 'my-success displayed';
               this.dbResponse =  'Added Successfully';
               // clear form
-              this.prefferred_genres = ''
-              this.fname = ''
-              this.lname = ''
-              this.phone = ''
-              this.email = ''
-              this.genre = ''
-              this.location = ''
-              this.bio = ''
-              this.profileImage = ''
-              this.imageUrl = ''
 
             }else if(gotten_response == '2'){
               this.responseClass = 'my-red displayed';

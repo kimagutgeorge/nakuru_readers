@@ -399,8 +399,7 @@ def addUser():
     email = request.form.get('email')
     location = request.form.get('location')
     bio = request.form.get('bio')
-    prefferred_genres = request.form.getlist('genres[]')  # Get the array of preferred genres
-    print(prefferred_genres)
+    prefferred_genres = request.form.getlist('genres[]')
     productImage = request.files.get('productImage')  # Get the uploaded image
 
     # Check if a user with the same phone number already exists
@@ -523,7 +522,7 @@ def getUser():
                 .filter(BookCategory.book_category_id.in_(wishlist_ids))
                 .all()
             )
-            wishlist = [{"id": single_list.book_category_id, "name": single_list.book_category_name} for single_list in wishlist]
+            wishlist = [{"name": single_list.book_category_name, "id": single_list.book_category_id} for single_list in wishlist]
         if user.user_preferred_genres:
             # Convert JSON array of genre IDs to a list of genre names
             genre_ids = user.user_preferred_genres
@@ -532,9 +531,24 @@ def getUser():
                 .filter(BookCategory.book_category_id.in_(genre_ids))
                 .all()
             )
-            preferred_genres = [{"id": genre.book_category_id, "name": genre.book_category_name} for genre in preferred_genres]
+            preferred_genres = [{"name": genre.book_category_name, "id": genre.book_category_id} for genre in preferred_genres]
         image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
         # Prepare the response
+        if user.user_is_active == 1:
+            user_status = 'Inactive'
+        else:
+            user_status = 'Active'
+
+        if user.user_is_verified == 1:
+            user_verified = 'Verified'
+        else:
+            user_verified = 'Unverified'
+        
+        if user.user_role == 1:
+            user_role = 'Member'
+        else:
+            user_role = 'Admin'
+
         user_details = {
             'id': user.user_id,
             'f_name': user.user_first_name,
@@ -545,12 +559,12 @@ def getUser():
             'bio': user.user_bio,
             'photo': image_url,
             'reg': user.user_registration_date,
-            'is_verified': user.user_is_verified,
-            'is_active': user.user_is_active,
+            'is_verified': user_verified,
+            'is_active': user_status,
             'last_login': user.user_last_login,
             'last_active': user.user_last_active,
             'books': user.user_total_books_read,
-            'role': user.user_role,
+            'role': user_role,
             'notifications': user.user_unread_notifications,
             'preferred_genres': preferred_genres,
             'wishlist': wishlist
@@ -561,3 +575,105 @@ def getUser():
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"message": "An error occurred while fetching user details"}), 500
+    
+# edit user
+@app.route('/edit-user', methods=['POST'])
+def editUser():
+    user_id = request.form.get("user_id")
+    fname = request.form.get('fname')
+    lname = request.form.get('lname')
+    phone = request.form.get('phone')
+    email = request.form.get('email')
+    location = request.form.get('location')
+    bio = request.form.get('bio')
+    prefferred_genres = request.form.getlist('genres[]')
+    if not prefferred_genres:
+        prefferred_genres = None
+    
+    # prefferred_genres_str = str(prefferred_genres).replace("[", "").replace("]", "")
+    productImage = request.files.get('productImage')
+
+    try:
+        # Start a transaction
+        with db.session.begin():
+            # Fetch the book with row-level locking
+            user = db.session.execute(
+                select(Users)
+                .where(Users.user_id == user_id)
+                .with_for_update()
+            ).scalar_one()
+
+            if user:
+                # Update the product details
+                if productImage:
+                    user_photo = db.session.query(Users).with_entities(Users.user_profile_picture).filter_by(user_id=user_id).first()
+
+                    # Access the result
+                    if user_photo:
+                        user_photo_value = user_photo[0]  # Get the `event_banner` value from the tuple
+                        folder_path = app.config['USERS_FOLDER']
+                        file_path = os.path.join(folder_path, user_photo_value)
+                        os.remove(file_path)
+                    # Secure the filename and split extension
+                    original_filename = secure_filename(productImage.filename)
+                    name, ext = os.path.splitext(original_filename)
+
+                    # Convert extension to lowercase
+                    ext = ext.lower()
+
+                    # Validate the extension
+                    if ext.lstrip(".") not in ALLOWED_EXTENSIONS:
+                        return jsonify({"message": "4"}), 200  # Invalid extension
+
+                    # Create the final filename
+                    filename = f"{name}{ext}"
+
+                    # Open the image
+                    img = Image.open(productImage)
+
+                    # Convert RGBA to RGB if necessary
+                    if img.mode in ("RGBA", "P"):
+                        img = img.convert("RGB")
+
+                    # Define target size (e.g., 200x200 for profile pictures)
+                    target_size = (200, 200)
+                    img_resized = img.resize(target_size, Image.Resampling.LANCZOS)
+
+                    # Ensure the upload folder exists
+                    os.makedirs(app.config['USERS_FOLDER'], exist_ok=True)
+
+                    # Save the resized image to the upload folder
+                    file_path = os.path.join(app.config['USERS_FOLDER'], filename)
+                    img_resized.save(file_path, "JPEG" if ext in {".jpg", ".jpeg"} else ext.lstrip("."))
+
+                    # Set the profile picture path in the database
+                    profile_picture_path = filename
+
+                    # update data
+                    user.user_first_name=fname,
+                    user.user_last_name=lname,
+                    user.user_phone=phone,
+                    user.user_email=email,
+                    user.user_location=location,
+                    user.user_bio=bio,
+                    user.user_preferred_genres=prefferred_genres,  # Add the preferred genres array
+                    user.user_profile_picture=profile_picture_path  # Add the profile picture path
+                else:
+                    # if no profile
+                    # update data
+                    user.user_first_name=fname,
+                    user.user_last_name=lname,
+                    user.user_phone=phone,
+                    user.user_email=email,
+                    user.user_location=location,
+                    user.user_bio=bio,
+                    user.user_preferred_genres=prefferred_genres,  # Add the preferred genres array
+
+                # Commit the changes (implicitly done by the context manager)
+                return {"message": "1"}, 200
+            else:
+                return {"message": "2"}, 200
+    except Exception as e:
+        # Rollback in case of error
+        db.session.rollback()
+        return {"message": f"An error occurred: {str(e)}"}, 500
