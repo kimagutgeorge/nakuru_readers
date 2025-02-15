@@ -9,6 +9,7 @@ import AdminCollection from '@/views/admin/ManageCollection.vue'
 import AddUser from '@/views/admin/AddUser.vue';
 import AdminViewUser from '@/views/admin/AdminViewUser.vue';
 import AddEvent from '@/views/admin/AddEvent.vue';
+import ViewEvent from '@/views/admin/AdminViewEvent.vue'
 
 export default [
     {
@@ -48,6 +49,12 @@ export default [
           path: '/admin/product/:id', 
           name:'Product Details',
           component: AdminProduct,
+          props:true
+        },
+        { 
+          path: '/admin/event/:id', 
+          name:'Event Details',
+          component: ViewEvent,
           props:true
         },
         { 

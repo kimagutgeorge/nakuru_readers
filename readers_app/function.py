@@ -703,3 +703,45 @@ def addEvent():
 
     return {"message": "1"}, 201  # Created status code
     
+# get events
+@app.route('/get-events', methods=['GET'])
+def getEvents():
+    # Fetch all users and format the result
+    events = Events.query.order_by(desc(Events.event_id)).all()  # Fetch all events from the database
+    result = []
+    for event in events:
+        result.append({
+            'id': event.event_id,
+            'title': event.event_title,
+            'description': event.event_description,
+            'time': event.event_date_time,
+            'location': event.event_location,
+            'link': event.event_link,
+            'status': 'Completed' if event.event_status == 1 else 'Pending' if event.event_status == 0 else 'Cancelled' # Set status based on user_is_active
+        })
+        
+    return jsonify(result), 201
+
+# view event
+@app.route('/get-event', methods = ['POST'])
+def viewEvent():
+    data = request.get_json()
+    id = data.get("event_id")
+    
+    # events = db.session.query(Events).join(BookCategory, BookProduct.book_genre == BookCategory.book_category_id).join(BookCollection, BookProduct.book_collection == BookCollection.book_collection_id).filter(BookProduct.book_id == id)
+    events = Events.query.order_by(desc(Events.event_id)).filter(Events.event_id == id)
+    # Build the result with image URLs
+    result = []
+    for event in events:
+        result.append({
+            'title': event.event_title,
+            'description': event.event_description,
+            'time': event.event_date_time,
+            'location': event.event_location,
+            'link': event.event_link,
+            'status': 'Completed' if event.event_status == 1 else 'Pending' if event.event_status == 0 else 'Cancelled' # Set status based on user_is_active
+        })
+    
+    return jsonify(result), 201
+
+# update event
