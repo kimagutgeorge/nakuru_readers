@@ -27,10 +27,30 @@
                 <input type="text" class="universal-input form-input" :readonly="!editable" v-model="event_link" placeholder="Link to Virtual Meeting">
             </div>
             <div class="col-100" style="margin-top:10px">
+                <label>STATUS: {{ status }}</label>
+                <div class="col-100 universal-input form-input" style="margin-top:10px">
+                    <input type="radio" id="complete" v-model="new_status" value="1" :disabled="!editable">
+                    <label for="html">Complete</label>
+                </div>
+                <div class="col-100 universal-input form-input" style="margin-top:10px">
+                    <input type="radio" id="cancel" v-model="new_status" value="2" :disabled="!editable">
+                    <label for="css">Cancel</label>
+                </div>
+                <div class="col-100 universal-input form-input" style="margin-top:10px">
+                    <input type="radio" id="pending" v-model="new_status" value="0" :disabled="!editable">
+                    <label for="javascript">Pending</label>
+                </div>
+            </div>
+            <div class="col-100" style="margin-top:10px">
                 <button class="btn btn-success btn-primary" @click="toggleEdit">
                     {{ editable ? 'SAVE' : 'EDIT' }} 
                     <i :class="editable ? 'fa-solid fa-save' : 'fa-solid fa-edit'"></i>
                 </button>
+            </div>
+         </div>
+         <div class="col-40">
+            <div class="col-50" style="margin-top:10px">
+                <label>Attendees</label>
             </div>
          </div>
         </div>
@@ -53,7 +73,8 @@
         date_time: '',
         location: '',
         event_link: '',
-        status: ''
+        status: '',
+        new_status:''
       }
     },
     components: {
@@ -111,11 +132,13 @@
             }
             //set the form here
             const formData = new FormData()
+            formData.append("id", this.id)
             formData.append("title", this.title)
             formData.append("description", this.description)
             formData.append("date_time", this.date_time)
             formData.append("location", this.location)
             formData.append("event_link", this.event_link)
+            formData.append("status", this.new_status)
             //save info
             try {
                 const response = await axios.post('http://127.0.0.1:5000/edit-event', formData, {
@@ -127,13 +150,8 @@
                 const gotten_response = data.message
                 if(gotten_response == '1'){
                 this.responseClass = 'my-success displayed';
-                this.dbResponse =  'Added Successfully';
-                // clear form
-                this.title = ''
-                this.description = ''
-                this.date_time = ''
-                this.location = ''
-                this.event_link = ''
+                this.dbResponse =  'Updated Successfully';
+                this.getEvent()
 
                 }else if(gotten_response == '2'){
                 this.responseClass = 'my-red displayed';

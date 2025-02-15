@@ -717,7 +717,7 @@ def getEvents():
             'time': event.event_date_time,
             'location': event.event_location,
             'link': event.event_link,
-            'status': 'Completed' if event.event_status == 1 else 'Pending' if event.event_status == 0 else 'Cancelled' # Set status based on user_is_active
+            'status': 'COMPLETE' if event.event_status == 1 else 'PENDING' if event.event_status == 0 else 'CANCELLED' # Set status based on user_is_active
         })
         
     return jsonify(result), 201
@@ -739,9 +739,46 @@ def viewEvent():
             'time': event.event_date_time,
             'location': event.event_location,
             'link': event.event_link,
-            'status': 'Completed' if event.event_status == 1 else 'Pending' if event.event_status == 0 else 'Cancelled' # Set status based on user_is_active
+            'status': 'COMPLETE' if event.event_status == 1 else 'PENDING' if event.event_status == 0 else 'CANCELLED' # Set status based on user_is_active
         })
     
     return jsonify(result), 201
 
 # update event
+@app.route('/edit-event', methods=['POST'])
+def editEvent():
+    event_id = request.form.get("id")
+    title = request.form.get("title")
+    description = request.form.get('description')
+    date_time = request.form.get('date_time')
+    location = request.form.get('location')
+    event_link = request.form.get('event_link')
+    status = request.form.get('status')
+
+    try:
+        # Start a transaction
+        with db.session.begin():
+            # Fetch the book with row-level locking
+            event = db.session.execute(
+                select(Events)
+                .where(Events.event_id == event_id)
+                .with_for_update()
+            ).scalar_one()
+
+            if event:
+                # Update the product details
+                event.event_title = title
+                event.event_description = description
+                event.event_date_time = date_time
+                event.event_location = location
+                event.event_link = event_link
+                event.event_status = status
+
+                # Commit the changes (implicitly done by the context manager)
+                return {"message": "1"}, 200
+            else:
+                return {"message": "2"}, 200
+    except Exception as e:
+        # Rollback in case of error
+        db.session.rollback()
+        return {"message": f"An error occurred: {str(e)}"}, 500
