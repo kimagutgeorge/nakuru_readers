@@ -5,9 +5,10 @@ import Books from '@/views/admin/AdminBooks.vue';
 import AddBook from '@/views/admin/AddBook.vue';
 import AdminProduct from '@/views/admin/AdminProduct.vue';
 import ManageBook from '@/views/admin/ManageBook.vue';
-import AdminCollection from '@/views/admin/ManageBook.vue'
+import AdminCollection from '@/views/admin/ManageCollection.vue'
 import AddUser from '@/views/admin/AddUser.vue';
 import AdminViewUser from '@/views/admin/AdminViewUser.vue';
+import AddEvent from '@/views/admin/AddEvent.vue';
 
 export default [
     {
@@ -37,6 +38,11 @@ export default [
           path: '/admin/add-book',
           name:'AddBook', 
           component: AddBook
+        },
+        {
+          path: '/admin/add-event',
+          name:'AddEvent',
+          component: AddEvent
         },
         { 
           path: '/admin/product/:id', 

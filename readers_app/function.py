@@ -677,3 +677,29 @@ def editUser():
         # Rollback in case of error
         db.session.rollback()
         return {"message": f"An error occurred: {str(e)}"}, 500
+
+# add event
+@app.route('/add-event', methods=['POST'])
+def addEvent():
+    title = request.form.get("title")
+    description = request.form.get('description')
+    date_time = request.form.get('date_time')
+    location = request.form.get('location')
+    event_link = request.form.get('event_link')
+    
+    # Check if the category already exists
+    existing_event = Events.query.filter_by(event_title=title).first()
+    if existing_event:
+        return {"message": "3"}, 201  # Event exists
+
+    # Create a new Category instance
+    new_event = Events(event_title=title, event_description=description, event_date_time = date_time, event_location = location, event_link = event_link)
+    
+    # Add the new category to the session
+    db.session.add(new_event)
+    
+    # Commit the session to save it in the database
+    db.session.commit()
+
+    return {"message": "1"}, 201  # Created status code
+    

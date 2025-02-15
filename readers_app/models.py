@@ -52,3 +52,15 @@ class Users(db.Model):
     user_role = db.Column(db.String(20), default="1", nullable=False)
     user_unread_notifications = db.Column(db.Integer, default=0)
     user_average_rating = db.Column(db.Float, default=0.0)
+
+# events
+class Events(db.Model):
+    __tablename__ = 'events'
+    event_id = db.Column(db.Integer, primary_key = True)
+    event_title = db.Column(db.String(200), nullable = False)
+    event_description = db.Column(db.Text, nullable=False)
+    event_date_time = db.Column(db.DateTime, nullable=False)
+    event_location = db.Column(db.String(200), nullable = False)
+    event_link = db.Column(db.Text, nullable = True)
+    event_status = db.Column(db.Integer, default="0", nullable = True)
+    event_attendees = db.Column(db.JSON, nullable=True)

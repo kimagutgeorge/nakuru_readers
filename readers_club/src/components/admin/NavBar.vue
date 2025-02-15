@@ -3,6 +3,8 @@
         <div class="system-logo">
             <img src="../../assets/icon/icon.png" alt="">
         </div>
+        <div class="nav-max-height">
+        <!-- max height -->
         <div class="col-90 col-flex">
             <router-link to="/admin/dashboard" class="col-100" active-class="is-active">
                 <i class="fa-solid fa-house"></i> <span>Dashboard</span>
@@ -78,10 +80,19 @@
                 <i class="fa-solid fa-plus"></i> <span>Add User</span>
             </router-link>
         </div>
+        <!-- end of max height -->
+        </div>
+        <div class="nav-bar-bottom">
+            <div class="col-90 col-flex">
+                <router-link to="/admin/profile" class="col-100" active-class="is-active">
+                    <i class="fa-solid fa-user"></i> <span>Profile</span>
+                </router-link>
+            </div>
         <div class="col-90 col-flex">
             <router-link to="/admin/settings" class="col-100" active-class="is-active">
                 <i class="fa-solid fa-gear"></i> <span>Settings</span>
             </router-link>
+        </div>
         </div>
     </div>
 </template>
