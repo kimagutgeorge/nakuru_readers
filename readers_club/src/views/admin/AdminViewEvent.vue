@@ -48,9 +48,29 @@
                 </button>
             </div>
          </div>
-         <div class="col-40">
-            <div class="col-50" style="margin-top:10px">
-                <label>Attendees</label>
+         <div class="col-40 col-flex">
+            <div class="col-100" style="margin-top:10px">
+              <div class="col-50 col-flex" style="margin-top:10px">
+                <label>Add Attendees</label>
+                <select class="universal-input form-input" :disabled="!editable" v-if="editable" id="current_genre" @change="selectPrefferred">
+                  <option  v-for="(user, index) in users" :key="index"  :value="user.id">{{ user.f_name }} {{ user.l_name }}</option>
+              </select>
+            </div>
+              <div class="col-100 col-flex" style="margin-top:10px">
+                <div class="col-flex genre-list" v-for="(genre, index) in prefferred_genres" :key="index">
+                    {{genre.name }}
+                    <i class="fa-solid fa-close" @click="deleteGenre(genre.id)"></i>
+                </div>
+                <!--  -->
+                <div class="col-100 col-flex">
+                  <div class="col-100">
+                  <label >Attendees</label>
+                  </div>
+                <div class="col-flex genre-list" v-for="(attendee, index) in attendees" :key="index">
+                  {{attendee.fname }} {{attendee.lname }}
+              </div>
+            </div>
+            </div>
             </div>
          </div>
         </div>
@@ -74,7 +94,10 @@
         location: '',
         event_link: '',
         status: '',
-        new_status:''
+        new_status:'',
+        users: [],
+        prefferred_genres:[],
+        attendees:[]
       }
     },
     components: {
@@ -91,7 +114,23 @@
         if(this.editable == false){
           this.editEvent();
         }
+        if(this.editable == true){
+          this.getUsers();
+        }
       },
+      selectPrefferred(){
+        const currentGenre = document.getElementById("current_genre").value
+        const selecTed = document.getElementById("current_genre");
+        const selectedOption = selecTed.options[selecTed.selectedIndex].text
+        if (!this.prefferred_genres.find(genre => genre.id === currentGenre)) {
+            this.prefferred_genres.push({ "name": selectedOption, "id": currentGenre })
+        }
+      },
+      deleteGenre(genreId) {
+      this.prefferred_genres = this.prefferred_genres.filter(
+        (genre) => genre.id !== genreId
+      );
+    },
       async getEvent(){
       try {
         const response = await axios.post('http://127.0.0.1:5000/get-event',{
@@ -99,7 +138,6 @@
         });
 
         const data = response.data;
-
         if (data.length > 0) {
           this.events = data;
           const event = this.events[0]
@@ -108,6 +146,7 @@
             this.location = event.location
             this.event_link = event.link
             this.status = event.status
+            this.attendees = event.attendees
             // Convert "Tue, 25 Feb 2025 14:07:00 GMT" to "YYYY-MM-DDTHH:MM"
             const eventDate = new Date(event.time); // Convert string to Date object
             this.date_time = eventDate.toISOString().slice(0, 16); // Extract YYYY-MM-DDTHH:MM
@@ -139,6 +178,10 @@
             formData.append("location", this.location)
             formData.append("event_link", this.event_link)
             formData.append("status", this.new_status)
+            this.prefferred_genres.forEach(function(genre){
+            const single_genre = genre.id
+            formData.append("attendees[]", single_genre)
+        })
             //save info
             try {
                 const response = await axios.post('http://127.0.0.1:5000/edit-event', formData, {
@@ -169,6 +212,26 @@
                         this.dbResponse = error.response;
                     }
                     }
+                }
+            },
+            async getUsers(){
+              try {
+                const response = await axios.get('http://127.0.0.1:5000/get-users');
+
+                const data = response.data;
+
+                if (data.length > 0) {
+                  this.users = data;
+                } else {
+                    this.responseClass = 'my-red displayed';
+                    this.dbResponse = 'No users found!';
+                  }
+                } catch (error) {
+                  this.responseClass = 'my-red displayed';
+                  this.dbResponse = 'Failed. Server Offline. Please try again later.';
+                  if (error.response) {
+                    this.dbResponse = error.response;
+                  }
                 }
             }
     },

@@ -731,14 +731,26 @@ def viewEvent():
     # events = db.session.query(Events).join(BookCategory, BookProduct.book_genre == BookCategory.book_category_id).join(BookCollection, BookProduct.book_collection == BookCollection.book_collection_id).filter(BookProduct.book_id == id)
     events = Events.query.order_by(desc(Events.event_id)).filter(Events.event_id == id)
     # Build the result with image URLs
+    attendees = []
     result = []
     for event in events:
+        if event.event_attendees:
+            # Convert JSON array of genre IDs to a list of genre names
+            users_ids = event.event_attendees
+            attendees = (
+                db.session.query(Users.user_id, Users.user_first_name, Users.user_last_name)
+                .filter(Users.user_id.in_(users_ids))
+                .all()
+            )
+            attendees = [{"fname": attendee.user_first_name, "lname": attendee.user_last_name} for attendee in attendees]
+        # end of attendees
         result.append({
             'title': event.event_title,
             'description': event.event_description,
             'time': event.event_date_time,
             'location': event.event_location,
             'link': event.event_link,
+            'attendees': attendees,
             'status': 'COMPLETE' if event.event_status == 1 else 'PENDING' if event.event_status == 0 else 'CANCELLED' # Set status based on user_is_active
         })
     
@@ -754,6 +766,7 @@ def editEvent():
     location = request.form.get('location')
     event_link = request.form.get('event_link')
     status = request.form.get('status')
+    attendees = request.form.getlist('attendees[]')
 
     try:
         # Start a transaction
@@ -766,14 +779,24 @@ def editEvent():
             ).scalar_one()
 
             if event:
-                # Update the product details
-                event.event_title = title
-                event.event_description = description
-                event.event_date_time = date_time
-                event.event_location = location
-                event.event_link = event_link
-                event.event_status = status
-
+                if attendees:
+                    # Update the product details
+                    event.event_title = title
+                    event.event_description = description
+                    event.event_date_time = date_time
+                    event.event_location = location
+                    event.event_link = event_link
+                    event.event_status = status
+                    event.event_attendees = attendees
+                # if attendees is empty
+                else:
+                    # Update the product details
+                    event.event_title = title
+                    event.event_description = description
+                    event.event_date_time = date_time
+                    event.event_location = location
+                    event.event_link = event_link
+                    event.event_status = status
                 # Commit the changes (implicitly done by the context manager)
                 return {"message": "1"}, 200
             else:
