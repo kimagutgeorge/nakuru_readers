@@ -44,10 +44,6 @@
                     <RouterLink :to="{ name: 'Event Details', params: { id: event.id }}" :key="$route.fullPath"> 
                       <i class="fa-solid fa-eye front-blue"></i>
                     </RouterLink>
-                    <i 
-                    :class="event.isReadOnly ? 'fa-solid fa-edit text-primary' : 'fa-solid fa-check text-success'"
-                    @click="event.isReadOnly ? makeEditable(index) : saveEvent(event.id, event.name)"
-                    ></i>
                     <i class="fa-solid fa-trash" @click="deleteEvent(event.id)"></i>
                   </td>
               </tr>
@@ -78,9 +74,6 @@ export default {
       this.responseClass = '';
       this.dbResponse = '';
     },
-    makeEditable(index){
-      this.events[index].isReadOnly = false;
-    },
     formatDateTime(dbTime) {
       if (!dbTime) return '';
       const date = new Date(dbTime);
@@ -106,7 +99,37 @@ export default {
           this.dbResponse = error.response;
         }
       }
-    }
+    },
+    async deleteEvent(id){
+      if(confirm('Deleting this event?') == false){
+        return
+      }
+      try {
+          const response = await axios.post('http://127.0.0.1:5000/del-event', {
+          id: id
+          })
+          const data = response.data
+          //response
+          const gotten_response = data.message
+          if(gotten_response == '1'){
+            this.responseClass = 'my-success displayed';
+            this.dbResponse = 'Deleted Successfully';
+            this.getEvents();
+          }else if(gotten_response == '2'){
+            this.responseClass = 'my-red displayed';
+            this.dbResponse =  "Failed";
+          }
+          
+      }catch (error) {
+          if (error.response) {
+            this.responseClass = 'my-red displayed';
+            this.dbResponse = 'Failed. Server Offline. Please try again later.';
+            if (error.response) {
+              this.dbResponse = error.response;
+            }
+          }
+      }
+    },
   },
   mounted(){
     this.getEvents();

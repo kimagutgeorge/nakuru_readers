@@ -40,7 +40,7 @@ def editCategories():
     cat_name = data.get('name')
 
     # Fetch the category by its ID
-    category = BookCategory.query.get(cat_id)  
+    category = BookCategory.query.filter_by(book_category_id=cat_id).first() 
     if category:
          # Update the name
         category.book_category_name = cat_name 
@@ -75,7 +75,7 @@ def deleteCategory():
     cat_id = data.get('id')
 
     # Fetch the category by its ID
-    category = BookCategory.query.get(cat_id)  
+    category = BookCategory.query.filter_by(book_category_id=cat_id).first() 
     if category:
         # If the category exists, delete it
         db.session.delete(category)
@@ -255,7 +255,7 @@ def editCollection():
     collection_name = data.get('name')
 
     # Fetch the collection by its ID
-    collection = BookCollection.query.get(collection_id)  
+    collection = BookCollection.query.filter_by(book_collection_id=collection_id).first()  
     if collection:
          # Update the name
         collection.book_collection_name = collection_name 
@@ -271,8 +271,8 @@ def deleteCollection():
     data = request.get_json()
     cat_id = data.get('id')
 
-    # Fetch the category by its ID
-    collection = BookCollection.query.get(cat_id)  
+    # Fetch the category by its ID 
+    collection = BookCollection.query.filter_by(book_collection_id=cat_id).first() 
     if collection:
         # If the collection exists, delete it
         db.session.delete(collection)
@@ -767,6 +767,8 @@ def editEvent():
     event_link = request.form.get('event_link')
     status = request.form.get('status')
     attendees = request.form.getlist('attendees[]')
+    if not status:
+        status = '0'
 
     try:
         # Start a transaction
@@ -805,3 +807,19 @@ def editEvent():
         # Rollback in case of error
         db.session.rollback()
         return {"message": f"An error occurred: {str(e)}"}, 500
+
+# delete event
+@app.route('/del-event', methods = ['POST'])
+def deleteEvent():
+    data = request.get_json()
+    event_id = data.get('id')
+
+    # Fetch the event by its ID
+    event = Events.query.filter_by(event_id=event_id).first()  
+    if event:
+        # If the event exists, delete it
+        db.session.delete(event)
+        db.session.commit() 
+        return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200
