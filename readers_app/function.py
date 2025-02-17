@@ -823,3 +823,59 @@ def deleteEvent():
         return {"message": "1"}, 200
     else:
         return {"message": "2"}, 200
+
+# add rule
+@app.route('/add-rule', methods = ['POST'])
+def addRule():
+    rule_id = request.form.get('id')
+    title = request.form.get("title")
+    description = request.form.get("description")
+    # check if it's an update
+    if rule_id:
+         # Fetch the category by its ID
+        existing_rule = Rules.query.filter_by(rule_id = rule_id).first()
+        if existing_rule:
+            # Update the name
+            existing_rule.rule_title = title
+            existing_rule.rule_description = description
+            # Commit the changes
+            db.session.commit() 
+            return {"message": "1"}, 200 # updated
+        else:
+            return {"message": "2"}, 200 # failed
+    else:
+        # check if rule exists
+        existing_rule = Rules.query.filter_by(rule_title = title).first()
+        if existing_rule:
+            return {"message": "3"}, 200
+        else:
+            new_rule = Rules(
+                rule_title = title,
+                rule_description = description
+            )
+            db.session.add(new_rule)
+            db.session.commit()
+            return {"message": "1"}, 200 # saved
+
+# get rules
+@app.route('/get-rules', methods = ['GET'])
+def getRules():
+    rules = Rules.query.order_by(desc(Rules.rule_id)).all()  # Fetch all rules from the database
+    result = [{'id': rule.rule_id, 'title': rule.rule_title, 'description': rule.rule_description } for rule in rules]
+    return jsonify(result), 201
+
+# delete rules
+@app.route('/del-rule', methods = ['POST'])
+def deleteRule():
+    data = request.get_json()
+    rule_id = data.get('rule_id')
+
+    # Fetch the rule by its ID
+    rule = Rules.query.filter_by(rule_id=rule_id).first() 
+    if rule:
+        # If the rule exists, delete it
+        db.session.delete(rule)
+        db.session.commit() 
+        return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200

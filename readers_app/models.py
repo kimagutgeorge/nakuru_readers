@@ -64,3 +64,10 @@ class Events(db.Model):
     event_link = db.Column(db.Text, nullable = True)
     event_status = db.Column(db.Integer, default="0", nullable = True)
     event_attendees = db.Column(db.JSON, nullable=True)
+
+# rules
+class Rules(db.Model):
+    __tablename__ = 'rules'
+    rule_id = db.Column(db.Integer, primary_key = True)
+    rule_title = db.Column(db.String(200), nullable = False)
+    rule_description = db.Column(db.Text, nullable=False)

@@ -7,43 +7,43 @@
         <div class="col-100 admin-panel-body col-flex">
          <div class="col-60 col-flex">
             <div class="col-50" style="margin-top:10px">
-                <label>Book Name</label>
+                <label class="title-label-small">Book Name</label>
                 <input type="text" class="universal-input form-input" v-model="bookName" placeholder="Book Name">
             </div>
             <div class="col-50" style="margin-top:10px">
-                <label>Image</label>
+                <label class="title-label-small">Image</label>
                 <input type="file" class="universal-input form-input" @change="onFileChange" accept="image/*" />
             </div>
             <div class="col-50" style="margin-top:10px">
-              <label>Quantity</label>
+              <label class="title-label-small">Quantity</label>
               <input type="number" class="universal-input form-input" v-model="quantity" />
           </div>
             <div class="col-50" style="margin-top:10px">
-              <label>Buying Price</label>
+              <label class="title-label-small">Buying Price</label>
               <input type="number" class="universal-input form-input" v-model="buyingPrice" />
           </div>
             <div class="col-50" style="margin-top:10px">
-              <label>Selling Price</label>
+              <label class="title-label-small">Selling Price</label>
               <input type="number" class="universal-input form-input" v-model="sellingPrice" />
           </div>
           <div class="col-50" style="margin-top:10px">
-            <label>Discount (%, Optional)</label>
+            <label class="title-label-small">Discount (%, Optional)</label>
             <input type="number" class="universal-input form-input" v-model="discount" />
         </div>
             <div class="col-50" style="margin-top:10px">
-                <label>Genre</label>
+                <label class="title-label-small">Genre</label>
                 <select class="universal-input form-input" v-model="genre">
                     <option  v-for="(category, index) in categories" :key="index"  :value="category.id">{{ category.name }}</option>
                 </select>
             </div>
             <div class="col-50" style="margin-top:10px">
-                <label>Collection</label>
+                <label class="title-label-small">Collection</label>
                 <select class="universal-input form-input" v-model="collection">
                   <option  v-for="(collection, index) in collections" :key="index"  :value="collection.id">{{ collection.name }}</option>
               </select>
             </div>
             <div class="col-100" style="margin-top:10px">
-                <label style="padding-bottom:10px;">Description</label>
+                <label style="padding-bottom:10px;" class="title-label-small">Description</label>
                 <textarea id="editor_content"></textarea>
             </div>
             <div class="col-100" style="margin-top:10px">
@@ -53,7 +53,7 @@
          <!-- en of form details -->
          <div class="col-40">
             <div style="margin-left:5%" class="col-80" v-if="imageUrl">
-                <p>Selected Image:</p>
+                <p class="title-label-small">Selected Image:</p>
                 <img :src="imageUrl" alt="Selected" style="max-width: 100%; height: auto;margin-top:15px;" />
               </div>
          </div>

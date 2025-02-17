@@ -110,6 +110,10 @@ li{
     background-color: #5ad85e;
     color:#ffffff;
 }
+.btn-cancel{
+    background-color: #161a2c;
+    color:#ffffff;
+}
 .my-tbl thead tr th{
     padding:7px 5px;
     background-color: rgb(180,180,180);
@@ -285,10 +289,12 @@ li{
     border-radius: 3px;
 }
 .admin-layout table tbody tr td .fa-eye,
+.admin-layout table tbody tr td .fa-angle-down,
 .admin-layout table tbody tr td .fa-edit{
     color: #ffffff;
     background-color: rgb(0, 130, 189);
 }
+.admin-layout table tbody tr td .fa-angle-up,
 .admin-layout table tbody tr td .fa-trash{
     background-color: red;
     color:#ffffff;
