@@ -111,6 +111,7 @@ methods: {
             this.dbResponse =  'Added Successfully';
             //clear form
             this.title = ''
+            tinymce.get('editor_content').setContent('');
             this.getRules();
           }else if(gotten_response == '2'){
             this.responseClass = 'my-red displayed';
@@ -223,6 +224,9 @@ methods: {
   });
   },
   async deleteRule(id){
+    if(confirm('Deleting this guideline?') == false){
+        return
+      }
     try {
       const response = await axios.post('http://127.0.0.1:5000/del-rule', {
         rule_id: id

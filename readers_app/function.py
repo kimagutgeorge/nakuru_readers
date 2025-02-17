@@ -879,3 +879,108 @@ def deleteRule():
         return {"message": "1"}, 200
     else:
         return {"message": "2"}, 200
+
+# add read
+@app.route('/add-read', methods = ['POST'])
+def addRead():
+    description = request.form.get('description')
+    genre = request.form.get('genre')
+    bookName = request.form.get('bookName')
+    productImage = request.files['productImage']
+    bookFile = request.files['bookFile']  # PDF file
+    collection = request.form.get('collection')
+
+    if not collection:
+        collection = '1'
+
+    similar_book = db.session.query(Reads).filter(Reads.read_name == bookName).first()
+
+    if similar_book:
+        return {"message": "3"}, 200  # Book already exists
+    
+    else:
+        try:
+            # Secure the filename and split extension for the image
+            original_image_filename = secure_filename(productImage.filename)
+            image_name, image_ext = os.path.splitext(original_image_filename)
+            
+            # Convert image extension to lowercase
+            image_ext = image_ext.lower()
+
+            # Validate the image extension
+            if image_ext.lstrip(".") not in ALLOWED_EXTENSIONS:
+                return {"message": "4"}, 200  # invalid extension
+
+            # Create the final image filename
+            image_filename = f"{image_name}{image_ext}"
+
+            # Open the image
+            img = Image.open(productImage)
+
+            # Convert RGBA to RGB if necessary
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+
+            # Define target size (e.g., 800x800)
+            target_size = (800, 800)
+            img_resized = img.resize(target_size, Image.Resampling.LANCZOS)
+
+            # Ensure the upload folder exists
+            os.makedirs(app.config['COVERS_FOLDER'], exist_ok=True)
+            os.makedirs(app.config['READS_FOLDER'], exist_ok=True)
+
+            # Save the resized image to the upload folder
+            image_file_path = os.path.join(app.config['COVERS_FOLDER'], image_filename)
+            img_resized.save(image_file_path, "JPEG" if image_ext in {".jpg", ".jpeg"} else image_ext.lstrip("."))
+
+            # Handle the PDF file
+            original_pdf_filename = secure_filename(bookFile.filename)
+            pdf_name, pdf_ext = os.path.splitext(original_pdf_filename)
+
+            # Validate the PDF extension
+            if pdf_ext.lower() != ".pdf":
+                return {"message": "5"}, 200  # invalid PDF extension
+
+            # Create the final PDF filename
+            pdf_filename = f"{pdf_name}{pdf_ext}"
+
+            # Save the PDF file to the upload folder
+            pdf_file_path = os.path.join(app.config['READS_FOLDER'], pdf_filename)
+            bookFile.save(pdf_file_path)
+
+            # Save book details to the database
+            new_book = Reads(
+                read_genre=genre,
+                read_name=bookName,
+                read_image=image_filename,
+                read_collection=collection,
+                read_description=description,
+                read_file=pdf_filename  # Save the PDF filename to the database
+            )
+
+            if new_book:
+                db.session.add(new_book)
+                db.session.commit()
+                return {"message": "1"}, 200  # book saved successfully
+            else:
+                return {"message": "2"}, 100  # Error saving the book
+
+        except Exception as e:
+            print(e)
+            return {"message": "3"}, 200  # error processing image or PDF
+
+# get reads
+@app.route('/get-reads', methods = ['GET'])
+def getReads():
+    reads = Reads.query.order_by(desc(Reads.read_id)).all()  # Fetch all products from the database
+    # Build the result with image URLs
+    result = []
+    for book in reads:
+        image_url = url_for('static', filename=f'uploads/book_covers/{book.read_image}', _external=True)
+        result.append({
+            'id': book.read_id,
+            'name': book.read_name,
+            'image': image_url
+        })
+    
+    return jsonify(result), 201

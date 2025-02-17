@@ -16,6 +16,9 @@ import AdminRating from '@/views/admin/AdminRating.vue';
 import AdminSettings from '@/views/admin/AdminSettings.vue';
 import AdminPaymentSettings from '@/views/admin/AdminPaymentSettings.vue';
 import AdminGuidelines from '@/views/admin/AdminGuidelines.vue';
+import AdminReads from '@/views/admin/AdminReads.vue';
+import AddRead from '@/views/admin/AddRead.vue';
+import AdminViewRead from '@/views/admin/AdminViewRead.vue';
 
 export default [
     {
@@ -66,6 +69,16 @@ export default [
           name:'Ratings',
           component:AdminRating
         },
+        {
+          path:'/admin/reads',
+          name: 'Reads',
+          component: AdminReads
+        },
+        {
+          path:'/admin/add-read',
+          name: 'AddRead',
+          component: AddRead
+        },
         { 
           path: '/admin/product/:id', 
           name:'Product Details',
@@ -82,6 +95,12 @@ export default [
           path: '/admin/user/:id', 
           name:'User Details',
           component: AdminViewUser,
+          props:true
+        },
+        { 
+          path: '/admin/read/:id', 
+          name:'Read Details',
+          component: AdminViewRead,
           props:true
         },
         { 

@@ -61,15 +61,20 @@
             </router-link>
         </div>
         <div class="col-90 col-flex">
-            <router-link to="/admin/shop" class="col-100" active-class="is-active">
-                <i class="fa-solid fa-shop"></i> <span>Shop</span>
+            <router-link to="/admin/reads" class="col-100" active-class="is-active" @click="viewReadsChildren">
+                <i class="fa-solid fa-book-open-reader"></i> <span>Reads</span>
             </router-link>
         </div>
-        <div class="col-90 col-flex">
+        <div class="col-90 col-flex" v-if="visiblereads">
+            <router-link to="/admin/add-read" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-plus"></i> <span>Add Read</span>
+            </router-link>
+        </div>
+        <!-- <div class="col-90 col-flex">
             <router-link to="/admin/accounts" class="col-100" active-class="is-active">
                 <i class="fa-solid fa-coins"></i> <span>Accounts</span>
             </router-link>
-        </div>
+        </div> -->
         <div class="col-90 col-flex">
             <router-link to="/admin/notifications" class="col-100" active-class="is-active">
                 <i class="fa-solid fa-info"></i> <span>Notifications</span>
@@ -125,6 +130,7 @@ export default {
         visibleevents: false,
         visibleusers: false,
         visiblesettings: false,
+        visiblereads: false,
     }
   },
   methods: {
@@ -132,25 +138,36 @@ export default {
             this.visibleevents = false
             this.visibleusers = false
             this.visiblesettings = false
+            this.visiblereads = false
             this.visiblebooks = true
         },
         viewEventChildren () {
             this.visiblebooks = false
             this.visibleusers = false
             this.visiblesettings = false
+            this.visiblereads = false
             this.visibleevents = true
         },
         viewUserChildren(){
             this.visiblebooks = false
             this.visibleevents = false
             this.visiblesettings = false
+            this.visiblereads = false
             this.visibleusers = true
         },
         viewSettingChildren(){
             this.visiblebooks = false
             this.visibleevents = false
             this.visibleusers = false
+            this.visiblereads = false
             this.visiblesettings = true
+        },
+        viewReadsChildren(){
+            this.visiblebooks = false
+            this.visibleevents = false
+            this.visibleusers = false
+            this.visiblesettings = false
+            this.visiblereads = true
         },
         getUrl(){
             const url = window.location.href

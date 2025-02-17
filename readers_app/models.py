@@ -71,3 +71,14 @@ class Rules(db.Model):
     rule_id = db.Column(db.Integer, primary_key = True)
     rule_title = db.Column(db.String(200), nullable = False)
     rule_description = db.Column(db.Text, nullable=False)
+
+# reads
+class Reads(db.Model):
+    __tablename__ = 'reads'
+    read_id = db.Column(db.Integer, primary_key = True)
+    read_genre = db.Column(db.Integer, nullable = False)
+    read_name = db.Column(db.String(120), unique=True, nullable = False)
+    read_image = db.Column(db.Text, nullable = False)
+    read_collection = db.Column(db.Integer, nullable = True)
+    read_file = db.Column(db.Text, nullable = False)
+    read_description = db.Column(db.Text, nullable = False)
