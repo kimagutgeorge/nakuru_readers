@@ -204,6 +204,9 @@ li{
     max-height: 76vh;
     overflow-y: scroll;
 }
+.admin-layout .nav-bar .nav-bar-bottom{
+    margin-top: 40px;
+}
 .admin-layout .nav-bar .nav-max-height::-webkit-scrollbar,
 .admin-layout .admin-panel .admin-panel-body::-webkit-scrollbar{
     width:8px;

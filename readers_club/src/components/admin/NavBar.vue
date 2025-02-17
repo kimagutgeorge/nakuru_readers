@@ -12,7 +12,17 @@
         </div>
         <div class="col-90 col-flex">
             <router-link to="/admin/books" @click="viewBookChildren" class="col-100" active-class="is-active">
-                <i class="fa-solid fa-book"></i> <span>Books</span>
+                <i class="fa-solid fa-book"></i> <span>Bookshop</span>
+            </router-link>
+        </div>
+        <div class="col-90 col-flex" v-if="visiblebooks">
+            <router-link to="/admin/orders" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-list"></i> <span>Orders</span>
+            </router-link>
+        </div>
+        <div class="col-90 col-flex" v-if="visiblebooks">
+            <router-link to="/admin/payments" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-coins"></i> <span>Payments</span>
             </router-link>
         </div>
         <div class="col-90 col-flex" v-if="visiblebooks">
@@ -31,7 +41,7 @@
             </router-link>
         </div>
         <div class="col-90 col-flex" v-if="visiblebooks">
-            <router-link to="/admin/rating-book" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+            <router-link to="/admin/rating" class="col-90 col-flex dark-nav-bar" active-class="is-active">
                 <i class="fa-solid fa-star"></i> <span>Rating & Review</span>
             </router-link>
         </div>
@@ -80,6 +90,21 @@
                 <i class="fa-solid fa-plus"></i> <span>Add User</span>
             </router-link>
         </div>
+        <div class="col-90 col-flex">
+            <router-link to="/admin/settings" @click="viewSettingChildren" class="col-100" active-class="is-active">
+                <i class="fa-solid fa-gear"></i> <span>Settings</span>
+            </router-link>
+        </div>
+        <div class="col-90 col-flex" v-if="visiblesettings">
+            <router-link to="/admin/payment-settings" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-coins"></i> <span>Payment & Registration</span>
+            </router-link>
+        </div>
+        <div class="col-90 col-flex" v-if="visiblesettings">
+            <router-link to="/admin/guidelines" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-list"></i> <span>Rules & Guidelines</span>
+            </router-link>
+        </div>
         <!-- end of max height -->
         </div>
         <div class="nav-bar-bottom">
@@ -88,11 +113,6 @@
                     <i class="fa-solid fa-user"></i> <span>Profile</span>
                 </router-link>
             </div>
-        <div class="col-90 col-flex">
-            <router-link to="/admin/settings" class="col-100" active-class="is-active">
-                <i class="fa-solid fa-gear"></i> <span>Settings</span>
-            </router-link>
-        </div>
         </div>
     </div>
 </template>
@@ -103,24 +123,34 @@ export default {
     return {
         visiblebooks: false,
         visibleevents: false,
-        visibleusers: false
+        visibleusers: false,
+        visiblesettings: false,
     }
   },
   methods: {
         viewBookChildren () {
             this.visibleevents = false
             this.visibleusers = false
+            this.visiblesettings = false
             this.visiblebooks = true
         },
         viewEventChildren () {
             this.visiblebooks = false
             this.visibleusers = false
+            this.visiblesettings = false
             this.visibleevents = true
         },
         viewUserChildren(){
             this.visiblebooks = false
             this.visibleevents = false
+            this.visiblesettings = false
             this.visibleusers = true
+        },
+        viewSettingChildren(){
+            this.visiblebooks = false
+            this.visibleevents = false
+            this.visibleusers = false
+            this.visiblesettings = true
         },
         getUrl(){
             const url = window.location.href

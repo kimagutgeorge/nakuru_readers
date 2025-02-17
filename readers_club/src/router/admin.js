@@ -9,7 +9,13 @@ import AdminCollection from '@/views/admin/ManageCollection.vue'
 import AddUser from '@/views/admin/AddUser.vue';
 import AdminViewUser from '@/views/admin/AdminViewUser.vue';
 import AddEvent from '@/views/admin/AddEvent.vue';
-import ViewEvent from '@/views/admin/AdminViewEvent.vue'
+import ViewEvent from '@/views/admin/AdminViewEvent.vue';
+import Orders from '@/views/admin/AdminOrders.vue';
+import Payments from '@/views/admin/AdminPayment.vue';
+import AdminRating from '@/views/admin/AdminRating.vue';
+import AdminSettings from '@/views/admin/AdminSettings.vue';
+import AdminPaymentSettings from '@/views/admin/AdminPaymentSettings.vue';
+import AdminGuidelines from '@/views/admin/AdminGuidelines.vue';
 
 export default [
     {
@@ -45,6 +51,21 @@ export default [
           name:'AddEvent',
           component: AddEvent
         },
+        {
+          path:'/admin/orders',
+          name:'Orders',
+          component:Orders
+        },
+        {
+          path:'/admin/payments',
+          name:'Payments',
+          component:Payments
+        },
+        {
+          path:'/admin/rating',
+          name:'Ratings',
+          component:AdminRating
+        },
         { 
           path: '/admin/product/:id', 
           name:'Product Details',
@@ -67,6 +88,21 @@ export default [
           path: '/admin/manage-books', 
           name:'Genre',
           component: ManageBook
+        },
+        { 
+          path: '/admin/settings', 
+          name:'Settings',
+          component: AdminSettings
+        },
+        {
+          path:'/admin/payment-settings',
+          name:'Payment Settings',
+          component: AdminPaymentSettings
+        },
+        {
+          path:'/admin/guidelines',
+          name:'Guidelines',
+          component: AdminGuidelines
         },
         { path: '/admin/manage-collections', 
           name:'Collections',
