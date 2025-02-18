@@ -48,4 +48,4 @@ db = SQLAlchemy(app)
 # Allowed extensions for validation
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 # Allow CORS for requests from vue
-CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://localhost:8081", "http://192.168.1.125:8081"]}}, supports_credentials=True)

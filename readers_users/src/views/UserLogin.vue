@@ -1,18 +1,19 @@
 <template>
   <div class="app-wrapper">
+    <UserResponse v-if="responseClass.includes('displayed')" :class="['response-message', responseClass]" :dbResponse="dbResponse" @close="closeResponse" />
     <div class="sign-up-page">
       <div class="sign-up-page-inner">
         <!-- contents -->
           <div class="form-group col-100">
-            <input type="email" class="universal-input form-input" placeholder="Username/Email">
+            <input type="email" class="universal-input form-input" placeholder="Username/Email" v-model="email">
           </div>
         <div class="form-group col-100">
-          <input type="password" class="universal-input form-input" placeholder="Confirm password">
+          <input type="password" class="universal-input form-input" placeholder="Confirm password" v-model="password">
         </div>
         <div class="form-group col-100">
-          <button class="btn-default col-100">Login</button>
+          <button class="btn-default col-100" @click="login">Login</button>
         </div>
-        <div class="form-group col-100 text-left">
+        <div class="form-group col-100">
           <p>Don't have an account? <span class="fw-bold"><router-link to="/signup" class="default-color">Sign Up
         </router-link></span></p>
         </div>
@@ -23,8 +24,68 @@
   </template>
   
   <script>
-  
+  import axios from 'axios';
+  import UserResponse from '@/components/UserResponse.vue';
+    
   export default {
-    name: 'UserLogin'
+    name: 'UserLogin',
+    components: { UserResponse },
+    data() {
+      return {
+        responseClass: '',
+        dbResponse: '',
+        email: '',
+        password: '',
+      }
+    },
+    methods: {
+      closeResponse() {
+        this.responseClass = '';
+        this.dbResponse = '';
+      },
+      async login(){
+        if(this.email == '' || this.password == ''){
+            this.responseClass = 'my-red displayed';
+            this.dbResponse = 'Please fill the required Fields'
+            return
+        }
+        //save info
+        try {
+            const response = await axios.post('http://127.0.0.1:5000/login',{
+              email: this.email,
+              password: this.password
+            });
+            const data = response.data
+            //response
+            const gotten_response = data.message
+            if(gotten_response == '1'){
+              this.responseClass = 'my-success displayed';
+              this.dbResponse =  'Login Successful';
+              // clear form
+              setTimeout(() => {
+                this.$router.push('/home');
+              }, 1500);
+              this.email = ''
+              this.password = ''
+
+            }else if(gotten_response == '2'){
+              this.responseClass = 'my-red displayed';
+              this.dbResponse =  "Invalid credentials";
+            }else{
+              this.responseClass = 'my-red displayed';
+              this.dbResponse = 'Error Signing in';
+            }
+            
+            }catch (error) {
+                if (error.response) {
+                this.responseClass = 'my-red displayed';
+                this.dbResponse = 'Failed. Server Offline. Please try again later.';
+                if (error.response) {
+                    this.dbResponse = error.response;
+                }
+                }
+            }
+        },
+    }
   }
   </script>

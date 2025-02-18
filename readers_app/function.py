@@ -405,7 +405,7 @@ def addUser():
     productImage = request.files.get('productImage')  # Get the uploaded image
 
     # Check if a user with the same phone number already exists
-    similar_user = Users.query.filter_by(user_phone=phone, user_first_name = fname, user_last_name = lname).first()
+    similar_user = Users.query.filter_by(user_phone=phone).first()
     if similar_user:
         return jsonify({"message": "3"}), 200  # User already exists
 
@@ -1000,19 +1000,26 @@ def getReads():
 # user login
 @app.route('/login', methods=['POST'])
 def login():
-    # Collect info from frontend
+   # Collect info from frontend
     data = request.get_json()
-    username = data.get('email')
+    email = data.get('email')
     password = data.get('password')
-    # Retrieve the user by username
-    user = Login.query.filter_by(username=username).first()
 
-    # Check if the user exists and the password is correct
-    if user and check_password_hash(user.password_hash, password):
-        session['user'] = user.username  # Set the username in session
-        return {"message": "1"}, 200  # Return proper response
+    # Retrieve user by email from Users table
+    user = Users.query.filter_by(user_email=email).first()
+
+    if not user:
+        return {"message": "2"}, 200  # User not found
+
+    # Retrieve the user's login details from the Login table using user_login_id
+    login_data = Login.query.filter_by(login_user_id=user.user_id).first()
+
+    # Check if login details exist and the password is correct
+    if login_data and check_password_hash(login_data.login_password, password):
+        session['user'] = user.user_id  # Store user ID in session
+        return {"message": "1"}, 200  # Login successful
     else:
-        return {"message": "2"}, 200  # Return unauthorized response
+        return {"message": "2"}, 200  # Incorrect password
 
 # add role
 @app.route('/add-role', methods=['POST'])
@@ -1079,3 +1086,45 @@ def editRole():
         return {"message": "1"}, 200
     else:
         return {"message": "2"}, 200
+
+# register user
+@app.route('/user-reg', methods=['POST'])
+def regUser():
+    # Get form data
+    fname = request.form.get('fname')
+    lname = request.form.get('lname')
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    # Check if a user with the same phone number already exists
+    similar_user = Users.query.filter_by(user_email = email).first()
+    if similar_user:
+        return jsonify({"message": "3"}), 200  # User already exists
+
+    try:
+        # Create a new user object
+        new_user = Users(
+            user_first_name=fname,
+            user_last_name=lname,
+            user_email=email
+        )
+        # Add the new user to the database
+        db.session.add(new_user)
+        db.session.commit()
+
+        # store credentials for user
+        login_user_id = new_user.user_id
+        hashed_password = generate_password_hash(password)
+        new_login = Login(
+            login_user_id = login_user_id,
+            login_password = hashed_password,
+        )
+        db.session.add(new_login)
+        db.session.commit()
+
+        return jsonify({"message": "1"}), 200  # User saved successfully
+
+    except Exception as e:
+        print(f"Error: {e}")
+        db.session.rollback()  # Rollback in case of error
+        return jsonify({"message": "2"}), 500  # Error saving the user
