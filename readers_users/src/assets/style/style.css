@@ -27,10 +27,16 @@
     text-align: center;
     padding:15px;
 }
+a{
+    text-decoration: none;
+}
 li{
     list-style: none;
 }
 /* universal classes */
+.default-color{
+    color:#9f080f;
+}
 .text-left{
     text-align: left;
 }

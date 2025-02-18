@@ -4,7 +4,7 @@
         <div class="sign-up-page-inner">
           <!-- contents -->
             <div class="form-group col-100">
-              <input type="text" class="universal-input form-input" placeholder="Username">
+              <input type="email" class="universal-input form-input" placeholder="Username/Email">
             </div>
           <div class="form-group col-100">
             <input type="text" class="universal-input form-input" placeholder="First Name">
@@ -22,7 +22,8 @@
             <button class="btn-default col-100">Sign up</button>
           </div>
           <div class="form-group col-100 text-left">
-            <p>Already have an account? <span class="fw-bold">Login</span></p>
+            <p>Already have an account? <span class="fw-bold"><router-link to="/" class="default-color">Login
+          </router-link></span></p>
           </div>
           <!-- end of contents -->
         </div>
