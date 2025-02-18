@@ -81,6 +81,11 @@ li{
 .col-15{
     width:15%;
 }
+.home-logo{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+}
 .col-85{
     width: 85%;
 }
@@ -98,6 +103,9 @@ li{
 }
 .col-10{
     width:10%;
+}
+.text-right{
+    text-align: right;
 }
 .col-50{
     width: 50%;
@@ -117,6 +125,9 @@ li{
 .col-flex{
     display: flex;
     flex-wrap: wrap;
+}
+.text-center{
+    text-align: center;
 }
 .col-25{
     width: 23%;
@@ -140,4 +151,35 @@ li{
 }
 .form-group select.form-input{
     width: 96%;
+}
+/* home page */
+.app-wrapper .home-wrapper{
+    width: 96%;
+    margin-left:2%;
+    height: 100%;
+}
+.home-wrapper .home-top-bar{
+    width: 100%;
+    padding-top: 20px;
+    height: fit-content;
+}
+.home-top-bar p{
+    font-size:13px;
+    margin-left:5%;
+}
+.home-top-bar p span{
+    color:#9f080f;
+}
+.home-top-bar .fa-solid{
+    color:#9f080f;
+}
+.home-wrapper .home-main-bar{
+    margin-top:40px;
+}
+.home-wrapper .home-main-bar .fa-solid{
+    color:#ffffff;
+    font-size: 18px;
+    background-color: #9f080f;
+    padding:10px;
+    border-radius: 8px;
 }
