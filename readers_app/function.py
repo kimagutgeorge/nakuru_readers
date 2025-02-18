@@ -399,7 +399,7 @@ def addUser():
     email = request.form.get('email')
     location = request.form.get('location')
     password = request.form.get('password')
-    role = '1'
+    role = request.form.get('role')
     bio = request.form.get('bio')
     prefferred_genres = request.form.getlist('genres[]')
     productImage = request.files.get('productImage')  # Get the uploaded image
@@ -1019,7 +1019,6 @@ def login():
 def addRole():
     data = request.get_json()
     role_name = data.get('name')
-    status = 1  # Active status
 
     if role_name:
         # Check if the role already exists

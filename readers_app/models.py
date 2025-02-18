@@ -35,7 +35,7 @@ class Users(db.Model):
     user_id = db.Column(db.Integer, primary_key = True)
     user_first_name = db.Column(db.String(40), nullable = False)
     user_last_name = db.Column(db.String(40), nullable = False)
-    user_phone = db.Column(db.Integer, nullable = False)
+    user_phone = db.Column(db.Integer, nullable = True)
     user_email = db.Column(db.String(80), nullable = False)
     user_registration_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     user_is_verified = db.Column(db.Integer, default="1", nullable=False)
@@ -89,7 +89,7 @@ class Login(db.Model):
     login_id = db.Column(db.Integer, primary_key = True)
     login_user_id = db.Column(db.Integer, nullable = False)
     login_password = db.Column(db.Text, nullable = False)
-    login_user_role = db.Column(db.Integer, nullable = False)
+    login_user_role = db.Column(db.Integer, default = "1", nullable = False)
 
 # roles
 class Roles(db.Model):

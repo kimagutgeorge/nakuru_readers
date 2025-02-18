@@ -46,6 +46,12 @@
               <label>Password</label>
               <input type="password" class="universal-input form-input" v-model="password" placeholder="Create password">
           </div>
+          <div class="col-50" style="margin-top:10px">
+            <label>Roles</label>
+            <select class="universal-input form-input" id="current_genre" v-model="user_role">
+                <option  v-for="(role, index) in roles" :key="index"  :value="role.id">{{ role.name }}</option>
+            </select>
+        </div>
             <div class="col-100" style="margin-top:10px">
                 <label style="padding-bottom:10px;">User Bio</label>
                 <textarea class="universal-input form-input" style="height:80px" placeholder="John Doe is a ..." v-model="bio"></textarea>
@@ -86,7 +92,8 @@
         bio: '',
         profileImage:'',
         imageUrl:'',
-        password:''
+        password:'',
+        user_role:''
       }
     },
     components: {
@@ -144,7 +151,7 @@
         }
     },
     async addUser(){
-        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == '' || this.profileImage == ''){
+        if(this.fname == '' || this.lname == '' || this.phone == '' || this.email == '' || this.location == '' || this.profileImage == '' || this.user_role == ''){
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'Please fill the required Fields'
             return
@@ -158,6 +165,7 @@
         formData.append("location", this.location)
         formData.append("bio", this.bio)
         formData.append("password", this.password)
+        formData.append("role", this.user_role)
         formData.append("productImage", this.profileImage)
         this.prefferred_genres.forEach(function(genre){
             const single_genre = genre.id
@@ -210,10 +218,32 @@
                 }
                 }
             }
+        },
+        async getroles(){
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/get-roles');
+
+        const data = response.data;
+
+        if (data.length > 0) {
+          this.roles = data;
+          
+        } else {
+            this.responseClass = 'my-red displayed';
+            this.dbResponse = 'No roles found!';
+          }
+        } catch (error) {
+          this.responseClass = 'my-red displayed';
+          this.dbResponse = 'Failed. Server Offline. Please try again later.';
+          if (error.response) {
+            this.dbResponse = error.response;
+          }
         }
+    },
     },
     mounted() {
         this.getCategories();
+        this.getroles();
     }
   }
   </script>
