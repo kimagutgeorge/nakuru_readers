@@ -205,19 +205,36 @@
         this.imageUrl = null; // Clear the image if no file is selected
       }
     },
-  bookChange(event) {
-      const file = event.target.files[0]; // Get the selected file
-      this.bookFile = file
-      if (file) {
+    bookChange(event) {
+    const file = event.target.files[0]; // Get the selected file
+
+    // Define allowed file extensions
+    const allowedExtensions = ['.pdf', '.epub', '.mobi', '.azw', '.doc', '.docx'];
+
+    // Get the file extension
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+
+    // Check if the file extension is allowed
+    if (!allowedExtensions.includes(`.${fileExtension}`)) {
+        this.responseClass = 'my-red displayed';
+        this.dbResponse = 'Invalid file type. Please upload a file with one of the following extensions: .pdf, .epub, .mobi, .azw, .docx, .doc.'
+        event.target.value = ''; // Clear the file input
+        this.fileUrl = null; // Clear the file URL
+        return;
+    }
+
+    this.bookFile = file; // Save the file
+
+    if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.fileUrl = e.target.result; // Set the image URL
+            this.fileUrl = e.target.result; // Set the file URL
         };
         reader.readAsDataURL(file); // Read the file as a data URL
-      } else {
-        this.fileUrl = null; // Clear the image if no file is selected
-      }
-    },
+    } else {
+        this.fileUrl = null; // Clear the file URL if no file is selected
+    }
+},
     uploadBook(event) {
       const file = event.target.files[0]; // Get the selected file
       this.book = file
