@@ -19,6 +19,7 @@ import AdminGuidelines from '@/views/admin/AdminGuidelines.vue';
 import AdminReads from '@/views/admin/AdminReads.vue';
 import AddRead from '@/views/admin/AddRead.vue';
 import AdminViewRead from '@/views/admin/AdminViewRead.vue';
+import AdminRoles from '@/views/admin/AdminRoles.vue';
 
 export default [
     {
@@ -63,6 +64,11 @@ export default [
           path:'/admin/payments',
           name:'Payments',
           component:Payments
+        },
+        {
+          path:'/admin/roles',
+          name: 'AdminRoles',
+          component: AdminRoles
         },
         {
           path:'/admin/rating',

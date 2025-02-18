@@ -82,3 +82,17 @@ class Reads(db.Model):
     read_collection = db.Column(db.Integer, nullable = True)
     read_file = db.Column(db.Text, nullable = False)
     read_description = db.Column(db.Text, nullable = False)
+
+# login
+class Login(db.Model):
+    __tablename__ = 'logins'
+    login_id = db.Column(db.Integer, primary_key = True)
+    login_user_id = db.Column(db.Integer, nullable = False)
+    login_password = db.Column(db.Text, nullable = False)
+    login_user_role = db.Column(db.Integer, nullable = False)
+
+# roles
+class Roles(db.Model):
+    __tablename__ = 'roles'
+    role_id = db.Column(db.Integer, primary_key = True)
+    role_name = db.Column(db.String(200), nullable = True)

@@ -42,6 +42,10 @@
                 <label>Location</label>
                 <input type="email" class="universal-input form-input" v-model="location" placeholder="Location">
             </div>
+            <div class="col-50" style="margin-top:10px">
+              <label>Password</label>
+              <input type="password" class="universal-input form-input" v-model="password" placeholder="Create password">
+          </div>
             <div class="col-100" style="margin-top:10px">
                 <label style="padding-bottom:10px;">User Bio</label>
                 <textarea class="universal-input form-input" style="height:80px" placeholder="John Doe is a ..." v-model="bio"></textarea>
@@ -81,7 +85,8 @@
         location: '',
         bio: '',
         profileImage:'',
-        imageUrl:''
+        imageUrl:'',
+        password:''
       }
     },
     components: {
@@ -152,6 +157,7 @@
         formData.append("email", this.email)
         formData.append("location", this.location)
         formData.append("bio", this.bio)
+        formData.append("password", this.password)
         formData.append("productImage", this.profileImage)
         this.prefferred_genres.forEach(function(genre){
             const single_genre = genre.id

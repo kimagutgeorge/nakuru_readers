@@ -398,6 +398,8 @@ def addUser():
     phone = request.form.get('phone')
     email = request.form.get('email')
     location = request.form.get('location')
+    password = request.form.get('password')
+    role = '1'
     bio = request.form.get('bio')
     prefferred_genres = request.form.getlist('genres[]')
     productImage = request.files.get('productImage')  # Get the uploaded image
@@ -458,9 +460,19 @@ def addUser():
             user_preferred_genres=prefferred_genres,  # Add the preferred genres array
             user_profile_picture=profile_picture_path  # Add the profile picture path
         )
-
         # Add the new user to the database
         db.session.add(new_user)
+        db.session.commit()
+
+        # store credentials for user
+        login_user_id = new_user.user_id
+        hashed_password = generate_password_hash(password)
+        new_login = Login(
+            login_user_id = login_user_id,
+            login_password = hashed_password,
+            login_user_role = role
+        )
+        db.session.add(new_login)
         db.session.commit()
 
         return jsonify({"message": "1"}), 200  # User saved successfully
@@ -984,3 +996,87 @@ def getReads():
         })
     
     return jsonify(result), 201
+
+# user login
+@app.route('/login', methods=['POST'])
+def login():
+    # Collect info from frontend
+    data = request.get_json()
+    username = data.get('email')
+    password = data.get('password')
+    # Retrieve the user by username
+    user = Login.query.filter_by(username=username).first()
+
+    # Check if the user exists and the password is correct
+    if user and check_password_hash(user.password_hash, password):
+        session['user'] = user.username  # Set the username in session
+        return {"message": "1"}, 200  # Return proper response
+    else:
+        return {"message": "2"}, 200  # Return unauthorized response
+
+# add role
+@app.route('/add-role', methods=['POST'])
+def addRole():
+    data = request.get_json()
+    role_name = data.get('name')
+    status = 1  # Active status
+
+    if role_name:
+        # Check if the role already exists
+        existing_name = Roles.query.filter_by(role_name=role_name).first()
+        if existing_name:
+            return {"message": "3"}, 201  # Conflict status code
+
+        # Create a new role instance
+        new_role = Roles(role_name=role_name)
+        
+        # Add the new role to the session
+        db.session.add(new_role)
+        
+        # Commit the session to save it in the database
+        db.session.commit()
+
+        return {"message": "1"}, 201  # Created status code
+    else:
+        return {"message": "2"}, 201  # Bad request
+
+# fetch roles
+@app.route('/get-roles', methods=['GET'])
+def getRoles():
+    roles = Roles.query.order_by(desc(Roles.role_id)).all()  # Fetch all roles from the database
+    result = [{'id': role.role_id, 'name': role.role_name } for role in roles]
+    return jsonify(result), 201
+
+# delete role
+@app.route('/del-role', methods = ['POST'])
+def delRole():
+    data = request.get_json()
+    role_id = data.get('id')
+
+    # Fetch the role by its ID
+    role = Roles.query.filter_by(role_id=role_id).first() 
+    if role:
+        # If the role exists, delete it
+        db.session.delete(role)
+        db.session.commit() 
+        return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200
+
+# edit role
+@app.route('/save-role', methods=['POST'])
+def editRole():
+    data = request.get_json()
+    role_id = data.get('id')
+    role_name = data.get('name')
+
+    # Fetch the role by its ID
+    role = Roles.query.filter_by(role_id=role_id).first() 
+    if role:
+         # Update the name
+        role.role_name = role_name 
+         # Commit the changes
+        db.session.commit() 
+        return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200

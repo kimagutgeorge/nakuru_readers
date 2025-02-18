@@ -95,6 +95,11 @@
                 <i class="fa-solid fa-plus"></i> <span>Add User</span>
             </router-link>
         </div>
+        <div class="col-90 col-flex" v-if="visibleusers">
+            <router-link to="/admin/roles" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-tags"></i> <span>Roles</span>
+            </router-link>
+        </div>
         <div class="col-90 col-flex">
             <router-link to="/admin/settings" @click="viewSettingChildren" class="col-100" active-class="is-active">
                 <i class="fa-solid fa-gear"></i> <span>Settings</span>
