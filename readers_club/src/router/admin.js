@@ -22,6 +22,7 @@ import AdminViewRead from '@/views/admin/AdminViewRead.vue';
 import AdminRoles from '@/views/admin/AdminRoles.vue';
 import AdminComunity from '@/views/admin/AdminComunity.vue';
 import AdminGroups from '@/views/admin/AdminGroups.vue';
+import AdminViewGroup from '@/views/admin/AdminViewGroup.vue';
 
 export default [
     {
@@ -103,6 +104,12 @@ export default [
           path: '/admin/user/:id', 
           name:'User Details',
           component: AdminViewUser,
+          props:true
+        },
+        { 
+          path: '/admin/group/:id', 
+          name:'Group Details',
+          component: AdminViewGroup,
           props:true
         },
         { 

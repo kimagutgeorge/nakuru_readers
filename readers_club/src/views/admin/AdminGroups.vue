@@ -14,7 +14,7 @@
                 </div>
                 <div class="form-group">
                     <label class="title-label-small">Group Description</label>
-                    <textarea v-model="group_bio" class="universal-input form-input" placeholder="Discussion of this group"></textarea>
+                    <textarea v-model="group_description" class="universal-input form-input" placeholder="Discussion of this group"></textarea>
                 </div>
                 <div class="form-group">
                     <button class="btn btn-success" @click="addGroup">SUBMIT</button>
@@ -34,13 +34,12 @@
                   <tbody>
                       <tr v-for="(group, index) in groups" :key="index">
                           <td hidden>{{ group.id }}</td>
-                          <td :class="{'editable-input': !group.isReadOnly, 'read-only-input': group.isReadOnly}"><input type="text" class="universal-input transaparent-input col-50" v-model="group.name" :readonly="group.isReadOnly"></td>
+                          <td><input type="text" class="universal-input transaparent-input col-50" v-model="group.name" :readonly="group.isReadOnly"></td>
                           <td><span  class="status-indicator">{{ group.status }} </span></td>
-                          <td :class="{'editable-input': !group.isReadOnly, 'read-only-input': group.isReadOnly}">
-                            <i 
-                            :class="group.isReadOnly ? 'fa-solid fa-edit text-primary' : 'fa-solid fa-check text-success'"
-                            @click="group.isReadOnly ? makeEditable(index) : savegroup(group.id, group.name)"
-                            ></i>
+                          <td>
+                            <RouterLink :to="{ name: 'Group Details', params: { id: group.id }}" :key="$route.fullPath"> 
+                              <i class="fa-solid fa-eye"></i>
+                              </RouterLink>
                             <i 
                             :class="group.status === 'Active' ? 'fa-solid fa-toggle-on text-success' : 'fa-solid fa-toggle-off text-danger'" 
                             @click="toggleStatus(group)"
@@ -74,7 +73,7 @@ export default {
   },
   methods: {
     async addGroup() {
-        if (this.group_name === '') {
+        if (this.group_name === '' || this.group_description == '') {
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'Please fill the required Fields'
             return
@@ -185,17 +184,15 @@ export default {
     },
     async savegroupStatus(id, status){
       let new_status = status
-      if(new_status == 'Active'){
-        new_status == '1'
-      }else if(new_status == 'Inactive'){
-        new_status == '0'
+      if(new_status === 'Active'){
+        new_status = '1'
+      }else if(new_status === 'Inactive'){
+        new_status = '0'
       }
-      alert(new_status)
-      return
       try {
           const response = await axios.post('http://127.0.0.1:5000/status-group', {
           cat_id: id,
-          cat_status: status
+          cat_status: new_status
           })
           const data = response.data
           //response

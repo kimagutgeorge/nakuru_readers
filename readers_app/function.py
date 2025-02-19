@@ -1169,25 +1169,66 @@ def getGroups():
 @app.route('/status-group', methods=['POST'])
 def editStatusGroup():
     data = request.get_json()
-    cat_id = data.get('cat_id')
-    cat_status = data.get('cat_status')
-    
-    if cat_status == 'Active':
-        cat_status == '1'
-    
-    if cat_status == 'Inactive':
-        cat_status == '2'
-
-    print(cat_status)
-    return {"message": "1"}
+    group_id = data.get('cat_id')
+    group_status = data.get('cat_status')
 
     # Fetch the category by its ID
-    category = BookCategory.query.get(cat_id)  
-    if category:
+    group = Groups.query.filter_by(group_id = group_id).first()
+    if group:
          # Update the status
-        category.book_category_status = cat_status 
+        group.group_status = group_status 
          # Commit the changes
         db.session.commit() 
         return {"message": "1"}, 200
     else:
         return {"message": "2"}, 200
+
+# get group
+@app.route('/get-group', methods = ['POST'])
+def getGroup():
+    data = request.get_json()
+    group_id = data.get('id')
+
+    groups = Groups.query.order_by(desc(Groups.group_id)).filter(Groups.group_id == group_id)
+    result = []
+    for group in groups:
+        result.append({
+            'id': group.group_id,
+            'name': group.group_title,
+            'bio': group.group_description,
+            'status': 'Active' if group.group_status == 1 else 'Inactive',  
+        })
+        
+    return jsonify(result), 201
+
+# update group
+@app.route('/edit-group', methods = ['POST'])
+def editGroup():
+    data = request.get_json()
+    group_id = data.get('id')
+    group_title = data.get('name')
+    group_bio = data.get('bio')
+
+    try:
+        # Start a transaction
+        with db.session.begin():
+            # Fetch the book with row-level locking
+            group = db.session.execute(
+                select(Groups)
+                .where(Groups.group_id == group_id)
+                .with_for_update()
+            ).scalar_one()
+
+            if group:
+                # Update the product details
+                group.group_title = group_title
+                group.group_description = group_bio
+
+                # Commit the changes (implicitly done by the context manager)
+                return {"message": "1"}, 200
+            else:
+                return {"message": "2"}, 200
+    except Exception as e:
+        # Rollback in case of error
+        db.session.rollback()
+        return {"message": f"An error occurred: {str(e)}"}, 500
