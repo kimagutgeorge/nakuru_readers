@@ -5,6 +5,7 @@
       <div class="home-top-bar">
         <div class="col-100 col-flex">
           <div class="col-80 col-flex">
+            <router-link to="/profile" class="col-100 col-flex color-dark">
             <div class="col-10">
               <img src="../assets/860.jpg" class="home-logo">
             </div>
@@ -12,6 +13,8 @@
               <p>Welcome, <br>
               <span class="fw-bold">George</span></p>
             </div>
+            <!-- end of profile -->
+            </router-link>
           </div>
           <div class="col-20 col-flex">
             <i class="fa-solid fa-bell"></i>

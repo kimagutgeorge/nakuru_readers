@@ -14,6 +14,9 @@
             <input type="text" class="universal-input form-input" placeholder="Last Name" v-model="lname">
           </div>
           <div class="form-group col-100">
+            <input type="number" class="universal-input form-input" placeholder="Phone" v-model="phone">
+          </div>
+          <div class="form-group col-100">
             <input type="password" class="universal-input form-input" placeholder="Create password" v-model="password">
           </div>
           <div class="form-group col-100">
@@ -49,7 +52,8 @@
         lname: '',
         email: '',
         password: '',
-        con_password: ''
+        con_password: '',
+        phone: ''
       }
     },
     methods: {
@@ -58,7 +62,7 @@
         this.dbResponse = '';
       },
       async signUp(){
-        if(this.fname == '' || this.lname == '' ||this.email == '' || this.password == '' || this.con_password == ''){
+        if(this.fname == '' || this.lname == '' ||this.email == '' || this.password == '' || this.con_password == '' || this.phone == ''){
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'Please fill the required Fields'
             return
@@ -73,6 +77,7 @@
         formData.append("fname", this.fname)
         formData.append("lname", this.lname)
         formData.append("email", this.email)
+        formData.append("phone", this.phone)
         formData.append("password", this.password)
         //save info
         try {
@@ -91,6 +96,7 @@
               this.lname = ''
               this.email = ''
               this.password = ''
+              this.phone = ''
               this.con_password = ''
 
             }else if(gotten_response == '2'){

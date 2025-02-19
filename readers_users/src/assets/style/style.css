@@ -236,3 +236,28 @@ li{
     font-size: 18px;
     padding:10px 0px;
 }
+.sign-up-page .sign-up-page-inner .col-100 .col-50 .form-input{
+    width:76%;
+}
+.profile-pic{
+    width: 70px;
+    height:70px;
+    border-radius: 50%;
+}
+.genre-list{
+    padding:4px;
+    background-color: #cdccc9;
+    margin-left:3%;
+}
+.genre-list .fa-solid{
+    margin-left:5px;
+    color:red;
+    cursor: pointer;
+    margin-top: 3px;
+}
+.sm-font{
+    font-size:14px;
+}
+.light-dark{
+    color:rgb(150, 150, 150);
+}
