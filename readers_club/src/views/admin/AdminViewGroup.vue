@@ -20,10 +20,39 @@
                 </div>
             </div>
             <div class="col-70 table-container">
+                <p style="margin-top:20px;">Group Chat</p>
                 <!-- group messages -->
-                <div class="chat-box col-100 col-flex">
-
+                <div class="chat-body col-100" @click.left="hideOptions" @contextmenu.prevent="handleRightClick">
+                    <div class="full-chat-box col-100">
+                    <div class="chat-box col-flex  user-sent" @click.right="showOptions">
+                        <div class="chat-options" v-if="options">
+                            <li><i class="fa-solid fa-close"></i> Delete</li>
+                            <li><i class="fa-solid fa-reply"></i> Reply</li>
+                        </div>
+                        <div class="col-100" style="margin-bottom:7px;">
+                            <span class="sm-font" style="font-weight:bold">Mtu Fulani</span>
+                        </div>
+                        <div class="col-90">
+                            <p>This is the message that was sent by someone</p>
+                        </div>
+                        <div class="col-10 time">
+                            <span class="sm-font">12:20</span>
+                        </div>
+                    </div>
                 </div>
+                    <!-- end of chat one -->
+                <div class="full-chat-box col-100">
+                    <div class="chat-box col-flex me-sent">
+                        <div class="col-90">
+                            <p>This is the message that was sent by me</p>
+                        </div>
+                        <div class="col-10 time">
+                            <span class="sm-font">12:20</span>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                    
                 <!-- end of messages -->
             </div>
         </div>
@@ -42,7 +71,8 @@
         responseClass: '',
         dbResponse: '',
         group_name: '',
-        group_bio: ''
+        group_bio: '',
+        options: false
       }
     },
     components: {
@@ -52,6 +82,12 @@
       closeResponse() {
         this.responseClass = '';
         this.dbResponse = '';
+      },
+      showOptions(){
+        this.options = true
+      },
+      hideOptions(){
+        this.options = false
       },
       async getGroup(){
         try {
@@ -95,7 +131,7 @@
             if(gotten_response == '1'){
               this.responseClass = 'my-success displayed';
               this.dbResponse =  'Updated Successfully';
-              
+
             }else if(gotten_response == '2'){
               this.responseClass = 'my-red displayed';
               this.dbResponse =  "Failed";
