@@ -1128,3 +1128,66 @@ def regUser():
         print(f"Error: {e}")
         db.session.rollback()  # Rollback in case of error
         return jsonify({"message": "2"}), 500  # Error saving the user
+
+# add group
+@app.route('/add-group', methods = ['POST'])
+def addGroup():
+    data = request.get_json()
+    name = data.get('name')
+    bio = data.get('bio')
+
+    # Check if a user with the same phone number already exists
+    similar_group = Groups.query.filter_by(group_title = name).first()
+    if similar_group:
+        return jsonify({"message": "3"}), 200  # User already exists
+    
+    # add group
+    new_group = Groups(
+            group_title=name,
+            group_description=bio
+        )
+    # Add the new user to the database
+    db.session.add(new_group)
+    db.session.commit()
+    return {"message": "1"}, 200
+
+# get groups
+@app.route('/get-groups', methods = ['GET'])
+def getGroups():
+    groups = Groups.query.order_by(desc(Groups.group_id)).all()  # Fetch all users from the database
+    result = []
+    for group in groups:
+        result.append({
+            'id': group.group_id,
+            'name': group.group_title,
+            'status': 'Active' if group.group_status == 1 else 'Inactive',  
+        })
+        
+    return jsonify(result), 201
+
+# change group status
+@app.route('/status-group', methods=['POST'])
+def editStatusGroup():
+    data = request.get_json()
+    cat_id = data.get('cat_id')
+    cat_status = data.get('cat_status')
+    
+    if cat_status == 'Active':
+        cat_status == '1'
+    
+    if cat_status == 'Inactive':
+        cat_status == '2'
+
+    print(cat_status)
+    return {"message": "1"}
+
+    # Fetch the category by its ID
+    category = BookCategory.query.get(cat_id)  
+    if category:
+         # Update the status
+        category.book_category_status = cat_status 
+         # Commit the changes
+        db.session.commit() 
+        return {"message": "1"}, 200
+    else:
+        return {"message": "2"}, 200

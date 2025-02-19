@@ -56,8 +56,13 @@
             </router-link>
         </div>
         <div class="col-90 col-flex">
-            <router-link to="/admin/community" class="col-100" active-class="is-active">
+            <router-link to="/admin/community" class="col-100" active-class="is-active" @click="viewCommunityChildren">
                 <i class="fa-solid fa-users"></i> <span>Community</span>
+            </router-link>
+        </div>
+        <div class="col-90 col-flex" v-if="visiblecommunity">
+            <router-link to="/admin/groups" class="col-90 col-flex dark-nav-bar" active-class="is-active">
+                <i class="fa-solid fa-users"></i> <span>Groups</span>
             </router-link>
         </div>
         <div class="col-90 col-flex">
@@ -70,11 +75,6 @@
                 <i class="fa-solid fa-plus"></i> <span>Add Read</span>
             </router-link>
         </div>
-        <!-- <div class="col-90 col-flex">
-            <router-link to="/admin/accounts" class="col-100" active-class="is-active">
-                <i class="fa-solid fa-coins"></i> <span>Accounts</span>
-            </router-link>
-        </div> -->
         <div class="col-90 col-flex">
             <router-link to="/admin/notifications" class="col-100" active-class="is-active">
                 <i class="fa-solid fa-info"></i> <span>Notifications</span>
@@ -136,6 +136,7 @@ export default {
         visibleusers: false,
         visiblesettings: false,
         visiblereads: false,
+        visiblecommunity: false
     }
   },
   methods: {
@@ -144,6 +145,7 @@ export default {
             this.visibleusers = false
             this.visiblesettings = false
             this.visiblereads = false
+            this.visiblecommunity = false
             this.visiblebooks = true
         },
         viewEventChildren () {
@@ -151,6 +153,7 @@ export default {
             this.visibleusers = false
             this.visiblesettings = false
             this.visiblereads = false
+            this.visiblecommunity = false
             this.visibleevents = true
         },
         viewUserChildren(){
@@ -158,6 +161,7 @@ export default {
             this.visibleevents = false
             this.visiblesettings = false
             this.visiblereads = false
+            this.visiblecommunity = false
             this.visibleusers = true
         },
         viewSettingChildren(){
@@ -165,6 +169,7 @@ export default {
             this.visibleevents = false
             this.visibleusers = false
             this.visiblereads = false
+            this.visiblecommunity = false
             this.visiblesettings = true
         },
         viewReadsChildren(){
@@ -172,7 +177,16 @@ export default {
             this.visibleevents = false
             this.visibleusers = false
             this.visiblesettings = false
+            this.visiblecommunity = false
             this.visiblereads = true
+        },
+        viewCommunityChildren(){
+            this.visiblebooks = false
+            this.visibleevents = false
+            this.visibleusers = false
+            this.visiblesettings = false
+            this.visiblereads = false
+            this.visiblecommunity = true
         },
         getUrl(){
             const url = window.location.href

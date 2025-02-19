@@ -20,6 +20,8 @@ import AdminReads from '@/views/admin/AdminReads.vue';
 import AddRead from '@/views/admin/AddRead.vue';
 import AdminViewRead from '@/views/admin/AdminViewRead.vue';
 import AdminRoles from '@/views/admin/AdminRoles.vue';
+import AdminComunity from '@/views/admin/AdminComunity.vue';
+import AdminGroups from '@/views/admin/AdminGroups.vue';
 
 export default [
     {
@@ -113,6 +115,16 @@ export default [
           path: '/admin/manage-books', 
           name:'Genre',
           component: ManageBook
+        },
+        {
+          path: '/admin/community',
+          name: 'Admin Community',
+          component: AdminComunity
+        },
+        {
+          path: '/admin/groups',
+          name: 'Admin Groups',
+          component: AdminGroups
         },
         { 
           path: '/admin/settings', 

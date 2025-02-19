@@ -95,6 +95,9 @@ li{
 .col-85{
     width: 85%;
 }
+.col-67{
+    width:68%;
+}
 .col-30{
     width: 30%;
 }
@@ -260,4 +263,53 @@ li{
 }
 .light-dark{
     color:rgb(150, 150, 150);
+}
+.title-bar{
+    padding:10px 0px;
+    font-size: 18px;
+}
+.title-bar .fa-solid{
+    margin-right: 5px;
+}
+.chat-body{
+    height: 76vh;
+    overflow-y: scroll;
+    background-color: #ffffff;
+    width:calc(100% - 20px);
+    padding: 10px;
+    border-radius: 10px;
+}
+.chat-box{
+    padding:10px 0px;
+    border-bottom: 1px solid rgb(220,220,220);
+}
+.chat-body::-webkit-scrollbar{
+    display: none;
+}
+.read-pic{
+    width:40px;
+    height: 40px;
+    border-radius: 50%;
+}
+.not-dot{
+    margin-top: 5px;
+    width:15px;
+    height:15px;
+    background-color: #9f080f;
+    display: flex;
+    text-align: center;
+    color:#ffffff;
+    font-size: 12px;
+    border-radius: 50%;
+}
+.not-dot .not-dot-inner{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 50%;
+}
+.sm-time{
+    font-size: 10px;
 }

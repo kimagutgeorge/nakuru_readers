@@ -26,5 +26,27 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-vue": "^8.0.3"
-  }
+  },
+  "rules": {
+      "space-before-blocks": "off",
+      "eqeqeq": "off",
+      "space-in-parens": "off",
+      "object-curly-newline": "off",
+      "key-spacing": "off",
+      "prefer-promise-reject-errors":"off",
+      "quotes": "off",
+      "object-curly-spacing": "off",
+      "no-multi-spaces": "off",
+      "camelcase": "off",
+      "padded-blocks": "off",
+      "quote-props": "off",
+      "vue/multi-word-component-names": "off",
+      "vue/no-textarea-mustache": "off",
+      "prefer-const": "off",
+      "no-unused-expressions" : "off",
+      "no-unreachable" : "off",
+      "no-unused-vars" : "off",
+      "vue/no-unused-components" : "off",
+      "comma-spacing": "off"
+    }
 }

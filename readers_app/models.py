@@ -96,3 +96,24 @@ class Roles(db.Model):
     __tablename__ = 'roles'
     role_id = db.Column(db.Integer, primary_key = True)
     role_name = db.Column(db.String(200), nullable = True)
+
+# messages
+class Messages(db.Model):
+    __tablename__ = 'messages'
+    message_id = db.Column(db.Integer, primary_key = True)
+    message_sender_id = db.Column(db.Integer, nullable = False)
+    message_receiver_id = db.Column(db.Integer, nullable = False)
+    message_group_id = db.Column(db.Integer, nullable = False)
+    message_content = db.Column(db.Text, nullable = False)
+    message_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    message_is_delivered = db.Column(db.Integer, default="0", nullable=False)
+    message_is_read = db.Column(db.Integer, default = "0", nullable = False)
+    message_is_deleted = db.Column(db.Integer, default = "0", nullable = False)
+
+# groups
+class Groups(db.Model):
+    __tablename__ = 'groups'
+    group_id = db.Column(db.Integer, primary_key = True)
+    group_title = db.Column(db.String(200), unique=True, nullable = False)
+    group_description = db.Column(db.Text, nullable = False)
+    group_status = db.Column(db.Integer, default = "1", nullable = False)
