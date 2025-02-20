@@ -1239,14 +1239,16 @@ def getMessages():
     data = request.get_json()
     user_id = data.get('id')
     # messages = Messages.query.order_by(desc(Messages.message_id)).all()  # Fetch all products from the database
-    messages = Messages.query.order_by(desc(Messages.message_id)).filter(Messages.message_id == user_id).all()
+    messages = Messages.query.order_by(desc(Messages.message_id)).filter(Messages.message_sender_id == user_id).all()
     # Build the result with image URLs
     result = []
     for message in messages:
         result.append({
-            'id': message.read_id,
-            'name': message.read_name,
-            'image': image_url
+            'message_id': message.message_id,
+            'sender_id': message.message_sender_id,
+            'receiver_id': message.message_receiver_id,
+            'message': message.message_content,
+            'time': message.message_time,
         })
     
     return jsonify(result), 201
@@ -1290,7 +1292,10 @@ def sendMessage():
         if new_message:
             db.session.add(new_message)
             db.session.commit()
-            return {"message": "1"}, 200  # book saved successfully
+            # Emit message to the recipient in real-time
+            # socketio.emit(f'new_message_{receiver}', {'sender_id': user_id, 'message': message}, broadcast=True)
+
+            return jsonify({'message': '1'})
         else:
             return {"message": "2"}, 100  # Error saving the book
 
@@ -1304,7 +1309,18 @@ def getChatMessage():
     user_id = data.get('id') 
     receiver = data.get('receiver')
 
-    messages = Messages.query.order_by(asc(Messages.message_id)).filter(Messages.message_sender_id == user_id, Messages.message_receiver_id == receiver).all()
+    messages = Messages.query.order_by(asc(Messages.message_id)).filter(
+    or_(
+        and_(
+            Messages.message_sender_id == user_id,
+            Messages.message_receiver_id == receiver
+        ),
+        and_(
+            Messages.message_sender_id == receiver,
+            Messages.message_receiver_id == user_id
+        )
+    )
+).all()
     # Build the result with image URLs
     result = []
     for message in messages:
@@ -1316,4 +1332,23 @@ def getChatMessage():
             'time': message.message_time,
         })
     
+    return jsonify(result), 201
+
+# get chat user
+@app.route('/get-chat-user', methods=['POST'])
+def getChatUser():
+    data = request.get_json()
+    receiver = data.get('receiver')
+    # Fetch all users and format the result
+    users = Users.query.filter(Users.user_id == receiver).order_by(desc(Users.user_id)).all()
+    result = []
+    for user in users:
+        image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        result.append({
+            'f_name': user.user_first_name,
+            'l_name': user.user_last_name,
+            'status': 'Active' if user.user_is_active == 1 else 'Inactive',  # Set status based on user_is_active
+            'pic': image_url
+        })
+        
     return jsonify(result), 201

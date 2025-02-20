@@ -59,91 +59,30 @@
                         <i class="fa-solid fa-angle-left"></i>
                     </div>
                     <div class="col-90">
-                        <img src="../assets/860.jpg" class="chat-pic">
+                        <img :src="user_image" class="chat-pic">
                     </div>
                 </div>
                 <div class="col-60">
-                    <p>Mtu Fulani</p>
+                    <p>{{ f_name }} {{l_name }}</p>
                 </div>
             </div>
             <!-- chat body -->
              <div class="chat-page-body col-flex">
-                <div class="full-chat-box col-100">
-                    <div class="chat-body-box col-flex sent-to-me">
-                        <div class="col-100">
-                            <p>This is the message</p>
-                        </div>
-                        <div class="col-100 text-right">
-                            <span>12:30</span>
-                        </div>
+                <!-- start of chat -->
+                <div class="full-chat-box col-100" v-for="(message, index) in chat_messages" :key="index">
+                    <div class="chat-body-box col-flex" 
+                         :class="{ 
+                           'sent-to-me': message.sender_id !== userStore.user,
+                           'i-sent': message.sender_id === userStore.user
+                         }">
+                      <div class="col-100">
+                        <p>{{ message.message }}</p>
+                      </div>
+                      <div class="col-100 text-right">
+                        <span>{{ formatDateTime(message.time) }}</span>
+                      </div>
                     </div>
-                </div>
-                <!-- end of chat one -->
-                <div class="full-chat-box col-100">
-                    <div class="chat-body-box col-flex i-sent">
-                        <div class="col-100">
-                            <p>This is the message sent to me but this one was so long</p>
-                        </div>
-                        <div class="col-100 text-right">
-                            <span>12:32</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- end of chat 2 -->
-                <div class="full-chat-box col-100">
-                    <div class="chat-body-box col-flex i-sent">
-                        <div class="col-100">
-                            <p>This is the message</p>
-                        </div>
-                        <div class="col-100 text-right">
-                            <span>12:30</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- end of chat -->
-                <div class="full-chat-box col-100">
-                    <div class="chat-body-box col-flex sent-to-me">
-                        <div class="col-100">
-                            <p>This is the message</p>
-                        </div>
-                        <div class="col-100 text-right">
-                            <span>12:30</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- end of chat -->
-                <div class="full-chat-box col-100">
-                    <div class="chat-body-box col-flex sent-to-me">
-                        <div class="col-100">
-                            <p>This is the message</p>
-                        </div>
-                        <div class="col-100 text-right">
-                            <span>12:30</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- end of chat -->
-                <div class="full-chat-box col-100">
-                    <div class="chat-body-box col-flex i-sent">
-                        <div class="col-100">
-                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Laudantium labore natus, voluptatibus magni amet adipisci quos dolore quibusdam, esse facilis provident excepturi maiores eveniet, eos soluta vitae aliquid praesentium officia.</p>
-                        </div>
-                        <div class="col-100 text-right">
-                            <span>12:30</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- end of chat -->
-                <div class="full-chat-box col-100">
-                    <div class="chat-body-box col-flex sent-to-me">
-                        <div class="col-100">
-                            <p>This is the message</p>
-                        </div>
-                        <div class="col-100 text-right">
-                            <span>12:30</span>
-                        </div>
-                    </div>
-                </div>
+                  </div>
                 <!-- end of chat -->
              </div>
              <!-- input field -->
@@ -198,6 +137,7 @@
   </template>
   
   <script>
+  import { io } from "socket.io-client";
   import axios from 'axios';
   import UserResponse from '@/components/UserResponse.vue';
   import UserNavigation from '@/components/UserNavigation.vue';
@@ -224,7 +164,11 @@
           users:[],
           message:'',
           recepient_id: '',
-          chat_messages: []
+          user_image:'',
+          f_name:'',
+          l_name:'',
+          chat_messages: [],
+          socket: null, // WebSocket connection
         }
       },
       methods: {
@@ -232,6 +176,18 @@
             const textarea = this.$refs.textarea;
             textarea.style.height = "auto"; // Reset height
             textarea.style.height = Math.min(textarea.scrollHeight, 100) + "px";
+        },
+        formatDateTime(dbTime) {
+            if (!dbTime) return '';
+            const date = new Date(dbTime);
+            return date.toLocaleString('en-GB', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: false 
+            }).replace(',', '');
         },
         closeResponse() {
           this.responseClass = '';
@@ -242,6 +198,7 @@
             this.show_users = false
             this.chat_list = false
             this.recepient_id = id
+            this.getChatUser()
         },
         hideChat(){
             this.shown_chat = false
@@ -272,7 +229,7 @@
             }
         },
         async getChatMessage(){
-            
+            this.chat_messages = ''
             try {
                 const response = await axios.post('http://192.168.1.125:5000/get-chat-message', {
                     id: this.userStore.user,
@@ -281,7 +238,6 @@
                 const data = response.data;
                 if (data.length > 0) {
                     this.chat_messages = data;
-                    console.log(this.chat_messages)
                 } else {
                     this.empty_chat = true
                 }
@@ -322,6 +278,7 @@
                 const gotten_response = data.message
                 if(gotten_response == '1'){
                     this.message = ''
+                    this.getChatMessage()
                 }else if(gotten_response == '2'){
                     this.responseClass = 'my-red displayed';
                     this.dbResponse =  "Error sending message";
@@ -333,11 +290,49 @@
                 this.responseClass = 'my-red displayed';
                 this.dbResponse = 'Failed. Server Offline. Please try again later.';
             }
+        },
+        async getChatUser(){
+            //send message
+            try {
+                const response = await axios.post('http://192.168.1.125:5000/get-chat-user', {
+                    receiver: this.recepient_id,
+                });
+                const data = response.data;
+                const gotten_response = data[0]
+                this.user_image = gotten_response.pic
+                this.f_name = gotten_response.f_name
+                this.l_name = gotten_response.l_name
+                this.getChatMessage()
+                
+            } catch (error) {
+                this.responseClass = 'my-red displayed';
+                this.dbResponse = 'Failed. Server Offline. Please try again later.';
+            }
+        },
+        //setup socket
+        setupSocketListeners() {
+            this.socket = io('http://192.168.1.125:5000');
+
+            this.socket.on(`new_message_${this.userStore.user}`, (data) => {
+                console.log("New message received:", data);
+                this.chat_messages.push({
+                    sender_id: data.sender_id,
+                    message: data.message,
+                    time: new Date().toISOString(),
+                });
+            });
         }
       },
       mounted(){
         this.getMessages();
-      }
+        this.setupSocketListeners();
+        this.chat_messages = ''
+      },
+      beforeUnmount() {
+        if (this.socket) {
+            this.socket.disconnect();
+        }
+    }
   }
   </script>
   

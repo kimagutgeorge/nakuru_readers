@@ -6,11 +6,9 @@ from flask_cors import CORS, cross_origin
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import DateTime, func, select, or_ , desc, asc
+from sqlalchemy import DateTime, func, select, or_ , desc, asc, and_
 from datetime import datetime
-# from sqlalchemy import func
-# from sqlalchemy import or_
-# from flask import url_for
+from flask_socketio import SocketIO, emit
 import random
 import string
 from flask_mail import Mail, Message
@@ -49,3 +47,4 @@ db = SQLAlchemy(app)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 # Allow CORS for requests from vue
 CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://localhost:8081", "http://192.168.1.125:8081"]}}, supports_credentials=True)
+socketio = SocketIO(app, cors_allowed_origins="*")
