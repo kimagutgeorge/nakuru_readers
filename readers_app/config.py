@@ -6,7 +6,7 @@ from flask_cors import CORS, cross_origin
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import DateTime, func, select, or_ , desc
+from sqlalchemy import DateTime, func, select, or_ , desc, asc
 from datetime import datetime
 # from sqlalchemy import func
 # from sqlalchemy import or_

@@ -383,7 +383,7 @@ def getUsers():
             'l_name': user.user_last_name,
             'phone': user.user_phone,
             'email': user.user_email,
-            'status': 'Active' if user.user_is_active == 1 else 'Inactive',  # Set status based on user_is_active
+            'status': 'Active' if user.user_status == 1 else 'Inactive',  # Set status based on user_is_active
             'photo': image_url
         })
         
@@ -1016,8 +1016,8 @@ def login():
 
     # Check if login details exist and the password is correct
     if login_data and check_password_hash(login_data.login_password, password):
-        session['user'] = user.user_id  # Store user ID in session
-        return {"message": "1"}, 200  # Login successful
+        user_id = user.user_id  # Store user ID in session
+        return {"message": "1", "user": user_id}, 200  # Login successful
     else:
         return {"message": "2"}, 200  # Incorrect password
 
@@ -1232,3 +1232,88 @@ def editGroup():
         # Rollback in case of error
         db.session.rollback()
         return {"message": f"An error occurred: {str(e)}"}, 500
+
+# get messages
+@app.route('/get-messages', methods = ['POST'])
+def getMessages():
+    data = request.get_json()
+    user_id = data.get('id')
+    # messages = Messages.query.order_by(desc(Messages.message_id)).all()  # Fetch all products from the database
+    messages = Messages.query.order_by(desc(Messages.message_id)).filter(Messages.message_id == user_id).all()
+    # Build the result with image URLs
+    result = []
+    for message in messages:
+        result.append({
+            'id': message.read_id,
+            'name': message.read_name,
+            'image': image_url
+        })
+    
+    return jsonify(result), 201
+
+# get users for users
+@app.route('/get-client-users', methods=['POST'])
+def getclientUsers():
+    data = request.get_json()
+    user_id = data.get('id')
+    # Fetch all users and format the result
+    users = Users.query.filter(Users.user_status == "1", Users.user_id != user_id).order_by(desc(Users.user_id)).all()
+  # Fetch all users from the database
+    result = []
+    for user in users:
+        image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        result.append({
+            'id': user.user_id,
+            'f_name': user.user_first_name,
+            'l_name': user.user_last_name,
+            'profile': image_url
+        })
+        
+    return jsonify(result), 201
+
+# send message
+@app.route('/send-message', methods = ['POST'])
+def sendMessage():
+    data = request.get_json()
+    user_id = data.get('id')
+    receiver = data.get('receiver')
+    message = data.get('message')
+
+    try:
+
+        new_message = Messages(
+            message_sender_id = user_id,
+            message_receiver_id = receiver,
+            message_content = message
+        )
+
+        if new_message:
+            db.session.add(new_message)
+            db.session.commit()
+            return {"message": "1"}, 200  # book saved successfully
+        else:
+            return {"message": "2"}, 100  # Error saving the book
+
+    except Exception as e:
+        print(e)
+        return {"message": "3"}, 200 # error processing image
+
+@app.route('/get-chat-message', methods = ['POST'])
+def getChatMessage():
+    data = request.get_json()
+    user_id = data.get('id') 
+    receiver = data.get('receiver')
+
+    messages = Messages.query.order_by(asc(Messages.message_id)).filter(Messages.message_sender_id == user_id, Messages.message_receiver_id == receiver).all()
+    # Build the result with image URLs
+    result = []
+    for message in messages:
+        result.append({
+            'message_id': message.message_id,
+            'sender_id': message.message_sender_id,
+            'receiver_id': message.message_receiver_id,
+            'message': message.message_content,
+            'time': message.message_time,
+        })
+    
+    return jsonify(result), 201
