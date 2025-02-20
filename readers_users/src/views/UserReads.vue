@@ -2,48 +2,34 @@
     <div class="app-wrapper">
       <UserResponse v-if="responseClass.includes('displayed')" :class="['response-message', responseClass]" :dbResponse="dbResponse" @close="closeResponse" />
       <div class="home-wrapper col-100">
-        <div class="col-100 title-bar col-flex">
-            <div class="col-100">
-                <p class="title-text"><i class="fa-solid fa-envelope"> </i>Messages</p>
+            <div class="col-100 title-bar col-flex">
+                <div class="col-100">
+                    <p class="title-text"><i class="fa-solid fa-envelope"> </i>Messages</p>
+                </div>
             </div>
-        </div>
         <div class="chat-body">
             <!-- chat list -->
             <div class="chat-list" v-if="chat_list">
             <div class="no_message col-90 text-center" v-if="empty_chat">
                 <img src="../assets/logos/empty_folder.png"> 
-                <p>Start a new chat</p>
+                <p @click="showUsers">Start a new chat</p>
             </div>
             <div class="col-100">
                 <input type="text" class="universal-input form-input" style="width:93% !important;" placeholder="Search user" v-model="password">
             </div>
-            <div class="chat-box col-flex" @click="openChat">
+            <div class="chat-box col-flex" v-for="(message, index) in messages" :key="index" @click="openChat(message.id)">
                 <div class="col-20">
-                    <img src="../assets/860.jpg" class="read-pic"> 
+                    <img :src="message.profile" class="read-pic"> 
                 </div>
                 <div class="col-67">
-                    Lorem ipsum dolor...
-                </div>
-                <div class="col-10 text-center">
-                    <p class="sm-time">12:10</p>
+                    {{ message.message }}
+                    <p class="sm-time">{{ formatDateTime(message.time) }}</p>
                     <div class="not-dot">
-                        <div class="not-dot-inner">
-                            2
-                        </div>
+                         <span class="not-dot-inner">2</span>
                     </div>
                 </div>
             </div>
-            <div class="chat-box col-flex">
-                <div class="col-20">
-                    <img src="../assets/g10.png" class="read-pic"> 
-                </div>
-                <div class="col-67">
-                    Lorem ipsum dolor...
-                </div>
-                <div class="col-10">
-                    <p class="sm-font">12:10</p>
-                </div>
-            </div>
+            <!-- end of chat -->
             <!-- new chat button -->
              <div class="col-90 new-chat-holder text-right">
                <div class="new-chat-btn" @click="showUsers">
@@ -198,6 +184,7 @@
             this.show_users = false
             this.chat_list = false
             this.recepient_id = id
+            this.chat_messages = ''
             this.getChatUser()
         },
         hideChat(){
@@ -321,12 +308,11 @@
                     time: new Date().toISOString(),
                 });
             });
-        }
+        },
       },
       mounted(){
         this.getMessages();
         this.setupSocketListeners();
-        this.chat_messages = ''
       },
       beforeUnmount() {
         if (this.socket) {

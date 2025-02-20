@@ -1239,19 +1239,40 @@ def getMessages():
     data = request.get_json()
     user_id = data.get('id')
     # messages = Messages.query.order_by(desc(Messages.message_id)).all()  # Fetch all products from the database
-    messages = Messages.query.order_by(desc(Messages.message_id)).filter(Messages.message_sender_id == user_id).all()
-    # Build the result with image URLs
+    latest_message = (
+    db.session.query(
+        Messages.message_receiver_id,
+        func.max(Messages.message_time).label("latest_time")
+    )
+    .filter(Messages.message_sender_id == user_id)  # Sent messages
+    .group_by(Messages.message_receiver_id)  # Group by receiver_id
+    .subquery()
+    )
+
+    messages = (
+        db.session.query(Messages, Users)
+        .join(Users, Messages.message_receiver_id == Users.user_id)
+        .join(latest_message, 
+            (Messages.message_receiver_id == latest_message.c.message_receiver_id) & 
+            (Messages.message_time == latest_message.c.latest_time))
+        .order_by(desc(Messages.message_time))  # Show latest messages first
+        .all()
+    )
+
+    # Build the result
     result = []
-    for message in messages:
+    for message, user in messages:
+        image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
         result.append({
             'message_id': message.message_id,
-            'sender_id': message.message_sender_id,
-            'receiver_id': message.message_receiver_id,
+            'id': message.message_receiver_id,
             'message': message.message_content,
             'time': message.message_time,
+            'profile': image_url
         })
-    
+
     return jsonify(result), 201
+
 
 # get users for users
 @app.route('/get-client-users', methods=['POST'])
@@ -1293,7 +1314,7 @@ def sendMessage():
             db.session.add(new_message)
             db.session.commit()
             # Emit message to the recipient in real-time
-            # socketio.emit(f'new_message_{receiver}', {'sender_id': user_id, 'message': message}, broadcast=True)
+            socketio.emit(f'new_message_{receiver}', {'sender_id': user_id, 'message': message})
 
             return jsonify({'message': '1'})
         else:
