@@ -139,13 +139,36 @@
   import UserResponse from '@/components/UserResponse.vue';
   import UserNavigation from '@/components/UserNavigation.vue';
   import { useUserStore } from '@/assets/js/userStore.js'
+  import { ref, onMounted, onUnmounted } from 'vue';
   
   export default {
     name: 'UserMessages',
     components: { UserResponse, UserNavigation },
     setup() {
         const userStore = useUserStore();
-        return { userStore };
+        // return { userStore }; uncomment
+        //sockets addition
+        const new_messages = ref([]);
+        const socket = io('http://localhost:5000'); // Change to your Flask backend URL
+
+        // Function to handle new messages
+        const handleNewMessages = (data) => {
+        console.log('New messages received:', data);
+        new_messages.value = data;
+        };
+
+        onMounted(() => {
+        socket.on('newMessages', handleNewMessages);
+        });
+
+        onUnmounted(() => {
+        socket.off('newMessages', handleNewMessages);
+        });
+
+        return {
+        new_messages, userStore
+        };
+        /* end of sockets */
     },
     data() {
         return {
@@ -216,7 +239,7 @@
                 const data = response.data;
                 if (data.length > 0) {
                     this.messages = data;
-                    console.log(this.messages[0])
+                    // console.log(this.messages[0])
                 } else {
                     this.empty_chat = true
                 }
@@ -307,12 +330,12 @@
                 this.dbResponse = 'Failed. Server Offline. Please try again later.';
             }
         },
-        //setup socket
+        //setup chat page socket
         setupSocketListeners() {
             this.socket = io('http://192.168.1.125:5000');
 
             this.socket.on(`new_message_${this.userStore.user}`, (data) => {
-                console.log("New message received:", data);
+                // console.log("New message received:", data);
                 this.chat_messages.push({
                     sender_id: data.sender_id,
                     message: data.message,
@@ -320,6 +343,8 @@
                 });
             });
         },
+        //setup message page socket
+        
       },
       mounted(){
         this.getMessages();
