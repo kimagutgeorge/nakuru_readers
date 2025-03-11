@@ -1236,43 +1236,71 @@ def editGroup():
         db.session.rollback()
         return {"message": f"An error occurred: {str(e)}"}, 500
 
-# get messages
+# get messages new
 @app.route('/get-messages', methods = ['POST'])
 def getMessages():
     data = request.get_json()
-    user_id = data.get('id')
-    # messages = Messages.query.order_by(desc(Messages.message_id)).all()  # Fetch all products from the database
-    latest_message = (
-    db.session.query(
-        Messages.message_receiver_id,
-        func.max(Messages.message_time).label("latest_time")
-    )
-    .filter(Messages.message_sender_id == user_id)  # Sent messages
-    .group_by(Messages.message_receiver_id)  # Group by receiver_id
-    .subquery()
+    user_id = data.get('id')  # The current user's ID
+
+    # Subquery to get the latest message time for each chat (pair of users)
+    latest_message_subquery = (
+        db.session.query(
+            func.greatest(Messages.message_sender_id, Messages.message_receiver_id).label("user1"),
+            func.least(Messages.message_sender_id, Messages.message_receiver_id).label("user2"),
+            func.max(Messages.message_time).label("latest_time")
+        )
+        .filter(
+            or_(
+                Messages.message_sender_id == user_id,  # Messages sent by the user
+                Messages.message_receiver_id == user_id  # Messages sent to the user
+            )
+        )
+        .group_by("user1", "user2")  # Group by the pair of users in the chat
+        .subquery()
     )
 
-    # Count unread messages where the receiver is not the current user
+    # Subquery to count unread messages for each chat
     unread_count_subquery = (
         db.session.query(
-            Messages.message_receiver_id,
+            func.greatest(Messages.message_sender_id, Messages.message_receiver_id).label("user1"),
+            func.least(Messages.message_sender_id, Messages.message_receiver_id).label("user2"),
             func.count(Messages.message_id).label("unread_count")
         )
         .filter(
             Messages.message_is_read == 0,  # Unread messages
-            Messages.message_receiver_id != user_id  # Exclude current user's messages
+            Messages.message_receiver_id == user_id  # Messages sent to the user
         )
-        .group_by(Messages.message_receiver_id)
+        .group_by("user1", "user2")
         .subquery()
     )
 
+    # Main query to get the latest message content and other details
     messages = (
         db.session.query(Messages, Users, func.coalesce(unread_count_subquery.c.unread_count, 0).label("unread_count"))
-        .join(Users, Messages.message_receiver_id == Users.user_id)
-        .join(latest_message, 
-            (Messages.message_receiver_id == latest_message.c.message_receiver_id) & 
-            (Messages.message_time == latest_message.c.latest_time))
-        .outerjoin(unread_count_subquery, Messages.message_receiver_id == unread_count_subquery.c.message_receiver_id)
+        .join(Users, or_(
+            Messages.message_sender_id == Users.user_id,  # Join with Users to get sender details
+            Messages.message_receiver_id == Users.user_id  # Join with Users to get receiver details
+        ))
+        .join(latest_message_subquery, 
+            and_(
+                func.greatest(Messages.message_sender_id, Messages.message_receiver_id) == latest_message_subquery.c.user1,
+                func.least(Messages.message_sender_id, Messages.message_receiver_id) == latest_message_subquery.c.user2,
+                Messages.message_time == latest_message_subquery.c.latest_time
+            )
+        )
+        .outerjoin(unread_count_subquery, 
+            and_(
+                func.greatest(Messages.message_sender_id, Messages.message_receiver_id) == unread_count_subquery.c.user1,
+                func.least(Messages.message_sender_id, Messages.message_receiver_id) == unread_count_subquery.c.user2
+            )
+        )
+        .filter(
+            or_(
+                Messages.message_sender_id == user_id,  # Messages sent by the user
+                Messages.message_receiver_id == user_id  # Messages sent to the user
+            )
+        )
+        .filter(Users.user_id != user_id)  # Exclude the current user from the results
         .order_by(desc(Messages.message_time))  # Show latest messages first
         .all()
     )
@@ -1283,18 +1311,16 @@ def getMessages():
         image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
         result.append({
             'message_id': message.message_id,
-            'id': message.message_receiver_id,
-            'f_name': user.user_first_name,
-            'l_name': user.user_last_name,
-            'message': message.message_content,
-            'time': message.message_time,
-            'profile': image_url,
-            'unread_count': unread_count  # Include unread message count
+            'id': user.user_id,  # The other user's ID
+            'f_name': user.user_first_name,  # The other user's first name
+            'l_name': user.user_last_name,   # The other user's last name
+            'message': message.message_content,  # The latest message content in the chat
+            'time': message.message_time,    # The time of the latest message
+            'profile': image_url,            # The other user's profile picture
+            'unread_count': unread_count     # Unread message count in the chat
         })
 
     return jsonify(result), 201
-
-
 # get users for users
 @app.route('/get-client-users', methods=['POST'])
 def getclientUsers():

@@ -216,6 +216,7 @@
                 const data = response.data;
                 if (data.length > 0) {
                     this.messages = data;
+                    console.log(this.messages[0])
                 } else {
                     this.empty_chat = true
                 }
