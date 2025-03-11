@@ -74,6 +74,9 @@ li{
 .text-left{
     text-align: left;
 }
+.col-20.text-right.v-sm-font p{
+    margin-top: 5px;
+}
 .fw-bold{
     font-weight: bold;
 }
@@ -131,12 +134,19 @@ li{
 .col-80{
     width:80%;
 }
+.col-75{
+    width: 75%;
+}
 .col-70{
     width: 70%;
 }
 .col-flex{
     display: flex;
     flex-wrap: wrap;
+}
+.col-flex-fixed{
+    display: flex;
+    flex-wrap: nowrap;
 }
 .text-center{
     text-align: center;
@@ -261,6 +271,12 @@ li{
 .sm-font{
     font-size:14px;
 }
+.v-sm-font{
+    font-size: 10px;
+}
+.col-100.col-flex-fixed .v-sm-font{
+    margin-top: 3px;
+}
 .light-dark{
     color:rgb(150, 150, 150);
 }
@@ -305,25 +321,6 @@ li{
 .chat-page .col-100.col-flex.chat-top{
     border-bottom: 1px solid rgb(240,240,240);
     padding-bottom: 5px;
-}
-.not-dot{
-    margin-top: 5px;
-    width:15px;
-    height:15px;
-    background-color: #9f080f;
-    display: flex;
-    text-align: center;
-    color:#ffffff;
-    font-size: 12px;
-    border-radius: 50%;
-}
-.not-dot .not-dot-inner{
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    border-radius: 50%;
 }
 .sm-time{
     font-size: 10px;

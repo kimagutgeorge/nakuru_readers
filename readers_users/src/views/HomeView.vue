@@ -6,19 +6,23 @@
         <div class="col-100 col-flex">
           <div class="col-80 col-flex">
             <router-link to="/profile" class="col-100 col-flex color-dark">
+            <!-- <RouterLink :to="{ name: 'Profile', params: { id: product.id }}" :key="$route.fullPath">  -->
             <div class="col-10">
-              <img src="../assets/860.jpg" class="home-logo">
+              <img :src="pic" class="home-logo">
             </div>
             <div class="col-90">
               <p>Welcome, <br>
-              <span class="fw-bold">George</span></p>
+              <span class="fw-bold">{{ fname }}</span></p>
             </div>
             <!-- end of profile -->
-            </router-link>
+          <!-- </RouterLink> -->
+        </router-link>
           </div>
-          <div class="col-20 col-flex">
+          <div class="col-20 col-flex" style="flex-wrap:nowrap;">
             <i class="fa-solid fa-bell"></i>
+            <router-link to="/" class="col-100 col-flex color-dark">
             <i class="fa-solid fa-power-off"></i>
+          </router-link>
           </div>
         </div>
       </div>
@@ -101,8 +105,10 @@
 </template>
 
 <script>
+import axios from 'axios';
 import UserResponse from '@/components/UserResponse.vue';
 import UserNavigation from '@/components/UserNavigation.vue';
+import { useUserStore } from '@/assets/js/userStore.js'
 
 export default {
   name: 'HomeView',
@@ -113,13 +119,46 @@ export default {
         dbResponse: '',
         email: '',
         password: '',
+        fname: '',
+        pic: ''
       }
+    },
+    setup() {
+      const userStore = useUserStore(); // Access Pinia store
+      return { userStore };
     },
     methods: {
       closeResponse() {
         this.responseClass = '';
         this.dbResponse = '';
       },
+      async getProfile(){
+      try {
+        const response = await axios.post('http://192.168.1.125:5000/get-profile', {
+          id: this.userStore.user
+        });
+
+        const data = response.data;
+        this.fname = data[0].f_name
+        this.pic = data[0].photo
+
+        if (data.length > 0) {
+          this.categories = data;
+        } else {
+            this.responseClass = 'my-red displayed';
+            this.dbResponse = 'User Not Found!';
+          }
+        } catch (error) {
+          this.responseClass = 'my-red displayed';
+          this.dbResponse = 'Failed. Server Offline. Please try again later.';
+          if (error.response) {
+            this.dbResponse = error.response;
+          }
+        }
+     },
+    },
+    mounted() {
+      this.getProfile();
     }
 }
 </script>

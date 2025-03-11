@@ -68,7 +68,7 @@ export default {
           this.dbResponse = 'Login Successful';
 
           this.userStore.setUser(data.user); // Store user in Pinia
-
+          
           setTimeout(() => {
             this.$router.push('/home');
           }, 1500);
@@ -83,6 +83,7 @@ export default {
           this.dbResponse = 'Error Signing in';
         }
       } catch (error) {
+        console.log(error)
         this.responseClass = 'my-red displayed';
         this.dbResponse = 'Failed. Server Offline. Please try again later.';
       }

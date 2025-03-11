@@ -4,6 +4,7 @@ import UserLogin from '@/views/UserLogin.vue'
 import HomeView from '@/views/HomeView.vue'
 import UserProfile from '@/views/UserProfile.vue'
 import UserReads from '@/views/UserReads.vue'
+import UserMessages from '@/views/UserMessages.vue'
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     path:'/profile',
     name: 'UserProfile',
     component: UserProfile
+  },
+  {
+    path: '/messages',
+    name: 'UserMessages',
+    component: UserMessages
   },
   {
     path: '/reads',

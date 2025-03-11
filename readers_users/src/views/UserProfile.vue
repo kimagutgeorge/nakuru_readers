@@ -5,27 +5,27 @@
         <div class="sign-up-page-inner">
           <!-- contents -->
            <div class="form-group col-100 text-center">
-            <img src="../assets/860.jpg" class="profile-pic">
+            <img :src="pic" class="profile-pic">
            </div>
             <div class="form-group col-100 col-flex">
                 <div class="col-50">
-                    <input type="email" class="universal-input form-input" placeholder="First Name" v-model="fname">
+                    <input type="email" class="universal-input form-input" placeholder="First Name" v-model="fname" :readonly="isEditable">
                 </div>
                 <div class="col-50">
-                    <input type="text" class="universal-input form-input" placeholder="Last Name" v-model="lname">
+                    <input type="text" class="universal-input form-input" placeholder="Last Name" v-model="lname" :readonly="isEditable">
                 </div>
             </div>
           <div class="form-group col-100 col-flex">
             <div class="col-50">
-                <input type="email" class="universal-input form-input" placeholder="Username/Email" v-model="email">
+                <input type="email" class="universal-input form-input" placeholder="Username/Email" v-model="email" :readonly="isEditable">
             </div>
             <div class="col-50">
-                <input type="number" class="universal-input form-input" placeholder="Phone" v-model="phone">
+                <input type="number" class="universal-input form-input" placeholder="Phone" v-model="phone" :readonly="isEditable">
             </div>
           </div>
           <div class="form-group col-100">
             <label class="sm-font light-dark">Preffered Genres</label>
-            <select class="universal-input form-input" v-model="new_genre" id="current_genre" @change="selectPrefferred" style="background-color:#ffffff;">
+            <select class="universal-input form-input" v-model="new_genre" id="current_genre" @change="selectPrefferred" style="background-color:#ffffff;" :disabled="isEditable">
                 <option  v-for="(category, index) in categories" :key="index"  :value="category.id">{{ category.name }}</option>
             </select>
           </div>
@@ -33,17 +33,18 @@
             <!-- preffered genres -->
             <div class="col-flex genre-list" v-for="(genre, index) in prefferred_genres" :key="index">
                 {{genre.name }}
-            <i class="fa-solid fa-close"  @click="deleteGenre(genre.id)"></i>
+            <i class="fa-solid fa-close" v-if="!isEditable" @click="deleteGenre(genre.id)"></i>
             </div>
           </div>
           <div class="form-group col-100">
-            <input type="text" class="universal-input form-input" placeholder="Location" v-model="password">
+            <input type="text" class="universal-input form-input" placeholder="Location" v-model="location" :readonly="isEditable">
           </div>
           <div class="form-group col-100">
-            <textarea class="universal-input form-input" placeholder="Bio" v-model="bio" style="height:50px;"></textarea>
+            <textarea class="universal-input form-input" placeholder="Bio" v-model="bio" style="height:50px;" :readonly="isEditable"></textarea>
           </div>
           <div class="form-group col-100">
-            <button class="btn-default col-100" @click="signUp">Save</button>
+            <button class="btn-default col-100" v-if="isEditable" @click="makeEditable">EDIT</button>
+            <button class="btn-default col-100" v-else @click="changeInfo">SAVE</button>
           </div>
           <!-- end of contents -->
         </div>
@@ -57,6 +58,7 @@
   import axios from 'axios';
   import UserResponse from '@/components/UserResponse.vue';
   import UserNavigation from '@/components/UserNavigation.vue';
+  import { useUserStore } from '@/assets/js/userStore.js'
 
   export default {
     name: 'UserProfile',
@@ -75,13 +77,25 @@
         password: '',
         con_password: '',
         phone: '',
-        new_genre: ''
+        new_genre: '',
+        location: '',
+        bio: '',
+        pic: '',
+        isEditable:true
       }
     },
+    setup() {
+    const userStore = useUserStore(); // Access Pinia store
+    return { userStore };
+  },
     methods: {
       closeResponse() {
         this.responseClass = '';
         this.dbResponse = '';
+      },
+      makeEditable(){
+        this.isEditable = !this.isEditable
+        this.getCategories();
       },
       deleteGenre(genreId) {
       this.prefferred_genres = this.prefferred_genres.filter(
@@ -104,6 +118,7 @@
 
         if (data.length > 0) {
           this.categories = data;
+          console.log(this.categories)
         } else {
             this.responseClass = 'my-red displayed';
             this.dbResponse = 'No genres found!';
@@ -115,6 +130,9 @@
             this.dbResponse = error.response;
           }
         }
+     },
+     async changeInfo(){
+      this.isEditable = !this.isEditable
      },
       async signUp(){
         if(this.fname == '' || this.lname == '' ||this.email == '' || this.password == '' || this.con_password == '' || this.phone == ''){
@@ -175,9 +193,41 @@
                 }
             }
         },
+        /* GET PROFILE DETAILS */
+      async getProfile(){
+      try {
+        const response = await axios.post('http://192.168.1.125:5000/get-profile', {
+          id: this.userStore.user
+        });
+
+        const data = response.data;
+        this.fname = data[0].f_name
+        this.lname = data[0].l_name
+        this.email = data[0].email
+        this.pic = data[0].photo
+        this.phone = data[0].phone
+        this.location = data[0].location
+        this.bio = data[0].bio
+        this.prefferred_genres = data[0].genres
+        console.log(this.prefferred_genres)
+
+        if (data.length > 0) {
+          this.categories = data;
+        } else {
+            this.responseClass = 'my-red displayed';
+            this.dbResponse = 'User Not Found!';
+          }
+        } catch (error) {
+          this.responseClass = 'my-red displayed';
+          this.dbResponse = 'Failed. Server Offline. Please try again later.';
+          if (error.response) {
+            this.dbResponse = error.response;
+          }
+        }
+     },
     },
     mounted(){
-        this.getCategories();
+        this.getProfile();
     }
   }
   </script>

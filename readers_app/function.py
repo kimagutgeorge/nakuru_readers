@@ -1017,7 +1017,10 @@ def login():
     # Check if login details exist and the password is correct
     if login_data and check_password_hash(login_data.login_password, password):
         user_id = user.user_id  # Store user ID in session
-        return {"message": "1", "user": user_id}, 200  # Login successful
+        image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        username = user.user_first_name
+
+        return {"message": "1", "user": user_id, "pic": image_url, "username": username}, 200  # Login successful
     else:
         return {"message": "2"}, 200  # Incorrect password
 
@@ -1249,26 +1252,44 @@ def getMessages():
     .subquery()
     )
 
+    # Count unread messages where the receiver is not the current user
+    unread_count_subquery = (
+        db.session.query(
+            Messages.message_receiver_id,
+            func.count(Messages.message_id).label("unread_count")
+        )
+        .filter(
+            Messages.message_is_read == 0,  # Unread messages
+            Messages.message_receiver_id != user_id  # Exclude current user's messages
+        )
+        .group_by(Messages.message_receiver_id)
+        .subquery()
+    )
+
     messages = (
-        db.session.query(Messages, Users)
+        db.session.query(Messages, Users, func.coalesce(unread_count_subquery.c.unread_count, 0).label("unread_count"))
         .join(Users, Messages.message_receiver_id == Users.user_id)
         .join(latest_message, 
             (Messages.message_receiver_id == latest_message.c.message_receiver_id) & 
             (Messages.message_time == latest_message.c.latest_time))
+        .outerjoin(unread_count_subquery, Messages.message_receiver_id == unread_count_subquery.c.message_receiver_id)
         .order_by(desc(Messages.message_time))  # Show latest messages first
         .all()
     )
 
     # Build the result
     result = []
-    for message, user in messages:
+    for message, user, unread_count in messages:
         image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
         result.append({
             'message_id': message.message_id,
             'id': message.message_receiver_id,
+            'f_name': user.user_first_name,
+            'l_name': user.user_last_name,
             'message': message.message_content,
             'time': message.message_time,
-            'profile': image_url
+            'profile': image_url,
+            'unread_count': unread_count  # Include unread message count
         })
 
     return jsonify(result), 201
@@ -1313,6 +1334,11 @@ def sendMessage():
         if new_message:
             db.session.add(new_message)
             db.session.commit()
+
+            #update read
+            Messages.query.filter(Messages.message_receiver_id == user_id).update({"message_is_read": 1})
+            # Commit the changes
+            db.session.commit() 
             # Emit message to the recipient in real-time
             socketio.emit(f'new_message_{receiver}', {'sender_id': user_id, 'message': message})
 
@@ -1352,7 +1378,10 @@ def getChatMessage():
             'message': message.message_content,
             'time': message.message_time,
         })
-    
+    #update read
+    Messages.query.filter(Messages.message_receiver_id == user_id).update({"message_is_read": 1})
+    # Commit the changes
+    db.session.commit() 
     return jsonify(result), 201
 
 # get chat user
@@ -1370,6 +1399,43 @@ def getChatUser():
             'l_name': user.user_last_name,
             'status': 'Active' if user.user_is_active == 1 else 'Inactive',  # Set status based on user_is_active
             'pic': image_url
+        })
+        
+    return jsonify(result), 201
+
+# get user info
+@app.route('/get-profile', methods = ['POST'])
+def getUserProfile():
+    data = request.get_json()
+    id = data.get('id')
+
+    #get user details
+    preferred_genres = []
+    users = Users.query.filter_by(user_id=id).order_by(desc(Users.user_id)).all()  # Fetch all users from the database
+    result = []
+    for user in users:
+        if user.user_preferred_genres:
+            # Convert JSON array of genre IDs to a list of genre names
+            genre_ids = user.user_preferred_genres
+            preferred_genres = (
+                db.session.query(BookCategory.book_category_id, BookCategory.book_category_name)
+                .filter(BookCategory.book_category_id.in_(genre_ids))
+                .all()
+            )
+            preferred_genres = [{"name": genre.book_category_name, "id": genre.book_category_id} for genre in preferred_genres]
+
+        image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        result.append({
+            'id': user.user_id,
+            'f_name': user.user_first_name,
+            'l_name': user.user_last_name,
+            'phone': user.user_phone,
+            'email': user.user_email,
+            'location': user.user_location,
+            'bio': user.user_bio,
+            'status': 'Active' if user.user_status == 1 else 'Inactive',  # Set status based on user_is_active
+            'photo': image_url,
+            'genres': preferred_genres,
         })
         
     return jsonify(result), 201
