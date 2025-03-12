@@ -1309,6 +1309,8 @@ def getMessages():
     result = []
     for message, user, unread_count in messages:
         image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        if not user.user_profile_picture:
+            image_url = url_for('static', filename=f'uploads/profiles/user.png', _external=True)
         result.append({
             'message_id': message.message_id,
             'id': user.user_id,  # The other user's ID
@@ -1319,25 +1321,8 @@ def getMessages():
             'profile': image_url,            # The other user's profile picture
             'unread_count': unread_count     # Unread message count in the chat
         })
-    # socket addition
-    # message_to_broadcat = []
-    # for message, user, unread_count in messages:
-    #     image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
-    #     message_to_broadcat.append({
-    #         'message_id': message.message_id,
-    #         'id': user.user_id,  # The other user's ID
-    #         'f_name': user.user_first_name,  # The other user's first name
-    #         'l_name': user.user_last_name,   # The other user's last name
-    #         'message': message.message_content,  # The latest message content in the chat    # The time of the latest message
-    #         'profile': image_url,            # The other user's profile picture
-    #         'unread_count': unread_count     # Unread message count in the chat
-    #     })
-    # # broadcast the message
-    # socketio.emit('newMessages', message_to_broadcat)
 
     return jsonify(result), 201
-
-    # end of socket
 
 # get users for users
 @app.route('/get-client-users', methods=['POST'])
@@ -1350,6 +1335,8 @@ def getclientUsers():
     result = []
     for user in users:
         image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        if not user.user_profile_picture:
+            image_url = url_for('static', filename=f'uploads/profiles/user.png', _external=True)
         result.append({
             'id': user.user_id,
             'f_name': user.user_first_name,
@@ -1441,6 +1428,8 @@ def getChatUser():
     result = []
     for user in users:
         image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        if not user.user_profile_picture:
+            image_url = url_for('static', filename=f'uploads/profiles/user.png', _external=True)
         result.append({
             'f_name': user.user_first_name,
             'l_name': user.user_last_name,
@@ -1472,6 +1461,8 @@ def getUserProfile():
             preferred_genres = [{"name": genre.book_category_name, "id": genre.book_category_id} for genre in preferred_genres]
 
         image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        if not user.user_profile_picture:
+            image_url = url_for('static', filename=f'uploads/profiles/user.png', _external=True)
         result.append({
             'id': user.user_id,
             'f_name': user.user_first_name,
@@ -1485,4 +1476,126 @@ def getUserProfile():
             'genres': preferred_genres,
         })
         
+    return jsonify(result), 201
+
+# search contact
+@app.route('/search-user', methods = ['POST'])
+def searchUser():
+    data = request.get_json()
+    search_user = data.get('search_user')
+    user_id = data.get('id')  # The current user's ID
+
+    # Subquery to get the latest message time for each chat (pair of users)
+    latest_message_subquery = (
+        db.session.query(
+            func.greatest(Messages.message_sender_id, Messages.message_receiver_id).label("user1"),
+            func.least(Messages.message_sender_id, Messages.message_receiver_id).label("user2"),
+            func.max(Messages.message_time).label("latest_time")
+        )
+        .filter(
+            or_(
+                Messages.message_sender_id == user_id,  # Messages sent by the user
+                Messages.message_receiver_id == user_id  # Messages sent to the user
+            )
+        )
+        .group_by("user1", "user2")  # Group by the pair of users in the chat
+        .subquery()
+    )
+
+    # Subquery to count unread messages for each chat
+    unread_count_subquery = (
+        db.session.query(
+            func.greatest(Messages.message_sender_id, Messages.message_receiver_id).label("user1"),
+            func.least(Messages.message_sender_id, Messages.message_receiver_id).label("user2"),
+            func.count(Messages.message_id).label("unread_count")
+        )
+        .filter(
+            Messages.message_is_read == 0,  # Unread messages
+            Messages.message_receiver_id == user_id  # Messages sent to the user
+        )
+        .group_by("user1", "user2")
+        .subquery()
+    )
+
+    # Main query to get the latest message content and other details
+    messages = (
+        db.session.query(Messages, Users, func.coalesce(unread_count_subquery.c.unread_count, 0).label("unread_count"))
+        .join(Users, or_(
+            Messages.message_sender_id == Users.user_id,  # Join with Users to get sender details
+            Messages.message_receiver_id == Users.user_id  # Join with Users to get receiver details
+        ))
+        .join(latest_message_subquery, 
+            and_(
+                func.greatest(Messages.message_sender_id, Messages.message_receiver_id) == latest_message_subquery.c.user1,
+                func.least(Messages.message_sender_id, Messages.message_receiver_id) == latest_message_subquery.c.user2,
+                Messages.message_time == latest_message_subquery.c.latest_time
+            )
+        )
+        .outerjoin(unread_count_subquery, 
+            and_(
+                func.greatest(Messages.message_sender_id, Messages.message_receiver_id) == unread_count_subquery.c.user1,
+                func.least(Messages.message_sender_id, Messages.message_receiver_id) == unread_count_subquery.c.user2
+            )
+        )
+        .filter(
+            or_(
+                Messages.message_sender_id == user_id,  # Messages sent by the user
+                Messages.message_receiver_id == user_id  # Messages sent to the user
+            )
+        )
+        .filter(Users.user_id != user_id)  # Exclude the current user from the results
+        .filter(
+            or_(
+                Users.user_first_name.like(f"%{search_user}%"),  # Search first name
+                Users.user_last_name.like(f"%{search_user}%")   # Search last name
+            )
+        )
+        .order_by(desc(Messages.message_time))  # Show latest messages first
+        .all()
+    )
+
+    # Build the result
+    result = []
+    for message, user, unread_count in messages:
+        image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+        if not user.user_profile_picture:
+            image_url = url_for('static', filename=f'uploads/profiles/user.png', _external=True)
+        result.append({
+            'message_id': message.message_id,
+            'id': user.user_id,  # The other user's ID
+            'f_name': user.user_first_name,  # The other user's first name
+            'l_name': user.user_last_name,   # The other user's last name
+            'message': message.message_content,  # The latest message content in the chat
+            'time': message.message_time,    # The time of the latest message
+            'profile': image_url,            # The other user's profile picture
+            'unread_count': unread_count     # Unread message count in the chat
+        })
+
+    return jsonify(result), 201
+
+# get read
+@app.route('/get-read', methods = ['POST'])
+def getRead():
+    data = request.get_json()
+    read_id = data.get('id') 
+    # reads = Reads.query.order_by(desc(Reads.read_id)).all()  # Fetch all products from the database
+    # Build the result with image URLs
+    reads = db.session.query(Reads, BookCategory, BookCollection)\
+    .join(BookCategory, Reads.read_genre == BookCategory.book_category_id)\
+    .join(BookCollection, Reads.read_collection == BookCollection.book_collection_id)\
+    .filter(Reads.read_id == read_id)\
+    .all()  # Explicitly call .all() to execute the query
+
+    result = []
+    for read, book_category, book_collection in reads:
+        image_url = url_for('static', filename=f'uploads/book_covers/{read.read_image}', _external=True)
+        result.append({
+            'id': read.read_id,
+            'name': read.read_name,
+            'image': image_url,
+            'genre': book_category.book_category_name,  # Access genre from BookCategory
+            'collection': book_collection.book_collection_name,  # Access collection from BookCollection
+            'description': read.read_description
+        })
+
     return jsonify(result), 201

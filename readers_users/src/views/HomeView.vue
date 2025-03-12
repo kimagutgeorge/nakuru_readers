@@ -28,13 +28,17 @@
       </div>
       <div class="home-main-bar col-flex">
         <div class="col-33 text-center">
-          <i class="fa-solid fa-envelope"></i>
+          <router-link to="/messages">
+            <i class="fa-solid fa-envelope"></i>
+          </router-link>
         </div>
         <div class="col-33 text-center">
           <i class="fa-solid fa-shopping-cart"></i>
         </div>
         <div class="col-33 text-center">
-          <i class="fa-solid fa-book-open-reader"></i>
+          <router-link to="/reads">
+            <i class="fa-solid fa-book-open-reader"></i>
+          </router-link>
         </div>
       </div>
       <!-- quick actions -->

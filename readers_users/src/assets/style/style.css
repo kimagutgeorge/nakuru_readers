@@ -17,6 +17,9 @@
     padding-top: 10vh;
     text-align: center;
 }
+.default-bg{
+    background-color: #ebeae4;
+}
 .app-wrapper .sign-up-page .sign-up-page-inner{
     height: fit-content;
     display: flex;
@@ -32,6 +35,9 @@ a{
 }
 li{
     list-style: none;
+}
+select{
+    background-color: transparent;
 }
 /* universal classes */
 .response{
@@ -62,8 +68,15 @@ li{
 .responseClass{
     display: none;
 }
+.fixed-img{
+    width: 120px;
+    height: auto;
+}
 .color-dark{
     color: #000;
+}
+.book-details{
+    margin-top: 20px;
 }
 .is-active{
     color:white;
@@ -115,6 +128,7 @@ li{
 }
 .col-90{
     width: 90%;
+    margin-left: 5%;
 }
 .col-10{
     width:10%;
@@ -124,6 +138,10 @@ li{
 }
 .col-50{
     width: 50%;
+}
+.col-50-r{
+    width:50%;
+    margin-left: 50%;
 }
 .col-60{
     width:60%;
@@ -162,7 +180,7 @@ li{
 }
 .form-input{
     border:1px solid rgb(220,220,220);
-    border-radius: 10px;
+    border-radius: 7px;
     width: 90%;
     padding:10px;
     margin-top: 10px;
@@ -170,6 +188,23 @@ li{
 .form-group{
     width:100%;
     margin-top: 15px;
+}
+.search-bar .form-input{
+    border-right: 0px;
+    border-radius: 0px;
+}
+.white-bg{
+    background-color: #ffffff;
+}
+.col-100 .col-50-r select.form-input{
+    padding:5px;
+    border-radius: 0px;
+}
+.search-bar .btn-default{
+    margin-top: 10px;
+    border-radius: 0px;
+    padding:10px;
+    width:50px;
 }
 .form-group select.form-input{
     width: 96%;
@@ -257,6 +292,21 @@ li{
     height:70px;
     border-radius: 50%;
 }
+.product-card.col-50{
+    margin-top: 10px;
+    padding-bottom: 10px;
+    width: 47%;
+    margin-left: 1.5%;
+}
+.c-grey{
+    color: rgb(100, 100, 100);
+}
+.btn-download{
+    background-color: transparent;
+    border:1px solid rgb(100, 100, 100);
+    margin-top: 5px;
+    padding: 5px;
+}
 .genre-list{
     padding:4px;
     background-color: #cdccc9;
@@ -280,20 +330,39 @@ li{
 .light-dark{
     color:rgb(150, 150, 150);
 }
+.fit-height{
+    height: fit-content;
+}
 .title-bar{
     padding:10px 0px;
     font-size: 18px;
 }
 .title-bar .fa-solid{
     margin-right: 5px;
+    color: #fe6f01;
+}
+.default-color-2{
+    color:#fe6f01;
 }
 .chat-body{
-    height: 83vh;
+    max-height: 83vh;
     overflow-y: scroll;
     background-color: #ffffff;
     width:calc(100% - 20px);
     padding: 10px;
     border-radius: 10px;
+}
+.shop-body{
+    margin-top: 10px;
+}
+.chat-body.no-pad{
+    padding:0px;
+    width: 100%;
+    border-radius: 0px;
+}
+.chat-body.no-pad .search-bar.col-100{
+    width:calc(100% - 20px);
+    padding: 10px;
 }
 .chat-box{
     padding:10px 0px;

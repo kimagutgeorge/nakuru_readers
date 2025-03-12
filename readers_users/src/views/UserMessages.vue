@@ -4,7 +4,7 @@
       <div class="home-wrapper col-100">
             <div class="col-100 title-bar col-flex">
                 <div class="col-100">
-                    <p class="title-text"><i class="fa-solid fa-envelope"> </i>Messages</p>
+                    <p class="title-text"><i class="fa-solid fa-envelope"> </i>MESSAGES</p>
                 </div>
             </div>
         <div class="chat-body">
@@ -15,7 +15,7 @@
                 <p @click="showUsers">Start a new chat</p>
             </div>
             <div class="col-100">
-                <input type="text" class="universal-input form-input" style="width:93% !important;" placeholder="Search user" v-model="password">
+                <input type="text" class="universal-input form-input" style="width:93% !important;" placeholder="Search user" v-model="search_user" @keyup="searchUser">
             </div>
             <div class="chat-box col-flex" v-for="(message, index) in messages" :key="index" @click="openChat(message.id)">
                 <div class="col-20">
@@ -188,6 +188,7 @@
           f_name:'',
           l_name:'',
           chat_messages: [],
+          search_user: '',
           socket: null, // WebSocket connection
         }
       },
@@ -229,6 +230,30 @@
             this.chat_list = false
             this.empty_chat = false
             this.getUsers()
+        },
+        async searchUser(){
+            this.messages = ''
+            if(this.search_user == ''){
+                this.empty_chat = false
+                this.getMessages();
+                return
+            }
+            try {
+                const response = await axios.post('http://192.168.1.125:5000/search-user', {
+                    search_id: this.search_user,
+                    id: this.userStore.user
+                });
+                const data = response.data;
+                if (data.length > 0) {
+                    this.messages = data;
+                } else {
+                    this.empty_chat = true
+                }
+            } catch (error) {
+                console.log(error)
+                this.responseClass = 'my-red displayed';
+                this.dbResponse = 'Failed. Server Offline. Please try again later.';
+            }
         },
         async getMessages(){
             

@@ -5,6 +5,7 @@ import HomeView from '@/views/HomeView.vue'
 import UserProfile from '@/views/UserProfile.vue'
 import UserReads from '@/views/UserReads.vue'
 import UserMessages from '@/views/UserMessages.vue'
+import UserReadsDetails from '@/views/UserReadsDetails.vue'
 
 const routes = [
   {
@@ -36,6 +37,12 @@ const routes = [
     path: '/reads',
     name: 'UserReads',
     component: UserReads
+  },
+  {
+    path: '/read/:id',
+    name: 'Read Details',
+    component: UserReadsDetails,
+    props: true
   }
 ]
 
