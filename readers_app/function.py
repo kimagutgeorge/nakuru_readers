@@ -1319,8 +1319,26 @@ def getMessages():
             'profile': image_url,            # The other user's profile picture
             'unread_count': unread_count     # Unread message count in the chat
         })
+    # socket addition
+    # message_to_broadcat = []
+    # for message, user, unread_count in messages:
+    #     image_url = url_for('static', filename=f'uploads/profiles/{user.user_profile_picture}', _external=True)
+    #     message_to_broadcat.append({
+    #         'message_id': message.message_id,
+    #         'id': user.user_id,  # The other user's ID
+    #         'f_name': user.user_first_name,  # The other user's first name
+    #         'l_name': user.user_last_name,   # The other user's last name
+    #         'message': message.message_content,  # The latest message content in the chat    # The time of the latest message
+    #         'profile': image_url,            # The other user's profile picture
+    #         'unread_count': unread_count     # Unread message count in the chat
+    #     })
+    # # broadcast the message
+    # socketio.emit('newMessages', message_to_broadcat)
 
     return jsonify(result), 201
+
+    # end of socket
+
 # get users for users
 @app.route('/get-client-users', methods=['POST'])
 def getclientUsers():
@@ -1368,12 +1386,15 @@ def sendMessage():
             # Emit message to the recipient in real-time
             socketio.emit(f'new_message_{receiver}', {'sender_id': user_id, 'message': message})
 
+            # Emit a notification event to the receiver
+            socketio.emit(f'new_message_notification_{receiver}', {'sender_id': user_id})
+
             return jsonify({'message': '1'})
         else:
             return {"message": "2"}, 100  # Error saving the book
 
     except Exception as e:
-        print(e)
+        # print(e)
         return {"message": "3"}, 200 # error processing image
 
 @app.route('/get-chat-message', methods = ['POST'])

@@ -333,17 +333,20 @@
         //setup chat page socket
         setupSocketListeners() {
             this.socket = io('http://192.168.1.125:5000');
-
             this.socket.on(`new_message_${this.userStore.user}`, (data) => {
-                // console.log("New message received:", data);
                 this.chat_messages.push({
                     sender_id: data.sender_id,
                     message: data.message,
                     time: new Date().toISOString(),
                 });
             });
+
+            // Listen for the notification event
+            this.socket.on(`new_message_notification_${this.userStore.user}`, (data) => {
+                // Call the getMessages method to fetch new messages
+                this.getMessages();
+            });
         },
-        //setup message page socket
         
       },
       mounted(){
