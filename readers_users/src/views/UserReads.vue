@@ -31,7 +31,7 @@
                                 <p class="c-grey">{{ read.name }}</p>
                             </div>
                             <div class="col-90">
-                                <button class="btn-download col-100">
+                                <button class="btn-download col-100" @click="downloadBook(read.id)">
                                     DOWNLOAD
                                 </button>
                             </div>
@@ -90,6 +90,25 @@
             }
           }
       },
+      async downloadBook(id) {
+        try {
+            // Send the book ID to Flask
+            const response = await axios.post('http://192.168.1.125:5000/download-book', {
+                book_id: id
+            });
+
+            // Check if the response contains a download link
+            if (response.data.download_link) {
+                // Trigger the download
+                window.location.href = response.data.download_link;
+            } else {
+              this.responseClass = 'my-red displayed';
+              this.dbResponse = 'No download link received from the server.';
+            }
+        } catch (error) {
+            console.error("Error downloading the book:", error);
+        }
+    }
       
     },
     mounted(){

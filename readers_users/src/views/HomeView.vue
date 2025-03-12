@@ -4,8 +4,8 @@
     <div class="home-wrapper col-100">
       <div class="home-top-bar">
         <div class="col-100 col-flex">
-          <div class="col-80 col-flex">
-            <router-link to="/profile" class="col-100 col-flex color-dark">
+          <div class="col-80 col-flex ">
+            <router-link to="/profile" class="col-100 col-flex-fixed color-dark">
             <!-- <RouterLink :to="{ name: 'Profile', params: { id: product.id }}" :key="$route.fullPath">  -->
             <div class="col-10">
               <img :src="pic" class="home-logo">

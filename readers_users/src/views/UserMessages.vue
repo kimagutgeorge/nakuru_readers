@@ -102,7 +102,7 @@
         <!-- end of chat list -->
          <div class="view-users" v-if="show_users">
             <div class="col-100 col-flex chat-top">
-                <div class="col-40 col-flex" @click="hideChat" style="width:fit-content;">
+                <div class="col-40 col-flex-fixed" @click="hideChat" style="width:fit-content;">
                     <div class="col-10">
                         <i class="fa-solid fa-angle-left"></i>
                     </div>

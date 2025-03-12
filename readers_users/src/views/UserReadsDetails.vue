@@ -18,7 +18,7 @@
               <div class="col-100 book-details" v-html="description">
               </div>
               <div class="col-100">
-                <button class="btn-download">DOWNLOAD</button>
+                <button class="btn-download" @click="downloadBook">DOWNLOAD</button>
               </div>
             </div>
         </div>
@@ -79,7 +79,26 @@ import UserNavigation from '@/components/UserNavigation.vue';
               this.dbResponse = error.response;
             }
           }
-      }
+      },
+      async downloadBook() {
+        try {
+            // Send the book ID to Flask
+            const response = await axios.post('http://192.168.1.125:5000/download-book', {
+                book_id: this.id
+            });
+
+            // Check if the response contains a download link
+            if (response.data.download_link) {
+                // Trigger the download
+                window.location.href = response.data.download_link;
+            } else {
+              this.responseClass = 'my-red displayed';
+              this.dbResponse = 'No download link received from the server.';
+            }
+        } catch (error) {
+            console.error("Error downloading the book:", error);
+        }
+    }
     },
     mounted(){
       this.getRead()

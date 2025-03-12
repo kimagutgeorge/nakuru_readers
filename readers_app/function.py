@@ -1599,3 +1599,28 @@ def getRead():
         })
 
     return jsonify(result), 201
+
+# download book
+@app.route('/download-book', methods=['POST'])
+def downloadRead():
+    data = request.get_json()
+    read_id = data.get('book_id')
+
+    if not read_id:
+        return jsonify({"error": "Read ID is required"}), 400
+
+    # Fetch the read file name from the database
+    read = db.session.query(Reads).filter(Reads.read_id == read_id).first()
+    if not read:
+        return jsonify({"error": "Read not found"}), 404
+
+    # Construct the file path
+    file_path = os.path.join(app.config['READS_FOLDER'], read.read_file)
+
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found"}), 404
+
+    # Option 1: Return a download link (if the file is in the static folder)
+    download_link = url_for('static', filename=f'uploads/reads/{read.read_file}', _external=True)
+    return jsonify({"download_link": download_link}), 200

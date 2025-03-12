@@ -22,6 +22,7 @@ import re
 from email.mime.image import MIMEImage
 from PIL import Image,ImageOps
 import os
+from flask import send_from_directory
 
 app = Flask(__name__)
 application = app
